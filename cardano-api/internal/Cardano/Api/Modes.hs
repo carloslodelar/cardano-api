@@ -17,6 +17,7 @@ module Cardano.Api.Modes (
     ByronMode,
     ShelleyMode,
     CardanoMode,
+    LegacyCardanoMode,
     ConsensusMode(..),
     AnyConsensusMode(..),
     renderMode,
@@ -41,6 +42,7 @@ module Cardano.Api.Modes (
     -- * Conversions to and from types in the consensus library
     ConsensusCryptoForBlock,
     ConsensusBlockForMode,
+    ConsensusBlockForMode',
     ConsensusBlockForEra,
     toConsensusEraIndex,
     fromConsensusEraIndex,
@@ -64,6 +66,9 @@ import           Data.Aeson (FromJSON (parseJSON), ToJSON (toJSON), Value)
 import           Data.Aeson.Types (Parser, prependFailure, typeMismatch)
 import           Data.SOP.Strict (K (K), NS (S, Z))
 import           Data.Text (Text)
+
+import           Data.Functor.Identity
+import qualified Legacy.Cardano.Block as Consensus
 
 -- ----------------------------------------------------------------------------
 -- Consensus modes
@@ -96,6 +101,8 @@ data ShelleyMode
 --
 data CardanoMode
 
+data LegacyCardanoMode
+
 data AnyConsensusModeParams where
   AnyConsensusModeParams :: ConsensusModeParams mode -> AnyConsensusModeParams
 
@@ -106,9 +113,10 @@ deriving instance Show AnyConsensusModeParams
 -- non-uniform way.
 --
 data ConsensusMode mode where
-     ByronMode   :: ConsensusMode ByronMode
-     ShelleyMode :: ConsensusMode ShelleyMode
-     CardanoMode :: ConsensusMode CardanoMode
+     ByronMode         :: ConsensusMode ByronMode
+     ShelleyMode       :: ConsensusMode ShelleyMode
+     CardanoMode       :: ConsensusMode CardanoMode
+     LegacyCardanoMode :: ConsensusMode LegacyCardanoMode
 
 
 deriving instance Show (ConsensusMode mode)
@@ -119,9 +127,10 @@ data AnyConsensusMode where
 deriving instance Show AnyConsensusMode
 
 renderMode :: AnyConsensusMode -> Text
-renderMode (AnyConsensusMode ByronMode) = "ByronMode"
-renderMode (AnyConsensusMode ShelleyMode) = "ShelleyMode"
-renderMode (AnyConsensusMode CardanoMode) = "CardanoMode"
+renderMode (AnyConsensusMode ByronMode)         = "ByronMode"
+renderMode (AnyConsensusMode ShelleyMode)       = "ShelleyMode"
+renderMode (AnyConsensusMode CardanoMode)       = "CardanoMode"
+renderMode (AnyConsensusMode LegacyCardanoMode) = "LegacyCardanoMode"
 
 -- | The subset of consensus modes that consist of multiple eras. Some features
 -- are not supported in single-era modes (for exact compatibility without
@@ -129,6 +138,7 @@ renderMode (AnyConsensusMode CardanoMode) = "CardanoMode"
 --
 data ConsensusModeIsMultiEra mode where
      CardanoModeIsMultiEra :: ConsensusModeIsMultiEra CardanoMode
+     LegacyCardanoModeIsMultiEra :: ConsensusModeIsMultiEra LegacyCardanoMode
 
 deriving instance Show (ConsensusModeIsMultiEra mode)
 
@@ -144,6 +154,13 @@ toEraInMode MaryEra    CardanoMode = Just MaryEraInCardanoMode
 toEraInMode AlonzoEra  CardanoMode = Just AlonzoEraInCardanoMode
 toEraInMode BabbageEra CardanoMode = Just BabbageEraInCardanoMode
 toEraInMode ConwayEra  CardanoMode = Just ConwayEraInCardanoMode
+toEraInMode ByronEra   LegacyCardanoMode = Just ByronEraInLegacyCardanoMode
+toEraInMode ShelleyEra LegacyCardanoMode = Just ShelleyEraInLegacyCardanoMode
+toEraInMode AllegraEra LegacyCardanoMode = Just AllegraEraInLegacyCardanoMode
+toEraInMode MaryEra    LegacyCardanoMode = Just MaryEraInLegacyCardanoMode
+toEraInMode AlonzoEra  LegacyCardanoMode = Just AlonzoEraInLegacyCardanoMode
+toEraInMode BabbageEra LegacyCardanoMode = Just BabbageEraInLegacyCardanoMode
+toEraInMode ConwayEra  LegacyCardanoMode = Just ConwayEraInLegacyCardanoMode
 
 -- | A representation of which 'CardanoEra's are included in each
 -- 'ConsensusMode'.
@@ -160,6 +177,14 @@ data EraInMode era mode where
      AlonzoEraInCardanoMode  :: EraInMode AlonzoEra  CardanoMode
      BabbageEraInCardanoMode :: EraInMode BabbageEra CardanoMode
      ConwayEraInCardanoMode  :: EraInMode ConwayEra  CardanoMode
+
+     ByronEraInLegacyCardanoMode   :: EraInMode ByronEra   LegacyCardanoMode
+     ShelleyEraInLegacyCardanoMode :: EraInMode ShelleyEra LegacyCardanoMode
+     AllegraEraInLegacyCardanoMode :: EraInMode AllegraEra LegacyCardanoMode
+     MaryEraInLegacyCardanoMode    :: EraInMode MaryEra    LegacyCardanoMode
+     AlonzoEraInLegacyCardanoMode  :: EraInMode AlonzoEra  LegacyCardanoMode
+     BabbageEraInLegacyCardanoMode :: EraInMode BabbageEra LegacyCardanoMode
+     ConwayEraInLegacyCardanoMode  :: EraInMode ConwayEra  LegacyCardanoMode
 
 deriving instance Show (EraInMode era mode)
 
@@ -243,6 +268,13 @@ instance ToJSON (EraInMode era mode) where
   toJSON AlonzoEraInCardanoMode = "AlonzoEraInCardanoMode"
   toJSON BabbageEraInCardanoMode = "BabbageEraInCardanoMode"
   toJSON ConwayEraInCardanoMode = "ConwayEraInCardanoMode"
+  toJSON ByronEraInLegacyCardanoMode = "ByronEraInLegacyCardanoMode"
+  toJSON ShelleyEraInLegacyCardanoMode = "ShelleyEraInLegacyCardanoMode"
+  toJSON AllegraEraInLegacyCardanoMode = "AllegraEraInLegacyCardanoMode"
+  toJSON MaryEraInLegacyCardanoMode    = "MaryEraInLegacyCardanoMode"
+  toJSON AlonzoEraInLegacyCardanoMode  = "AlonzoEraInLegacyCardanoMode"
+  toJSON BabbageEraInLegacyCardanoMode = "BabbageEraInLegacyCardanoMode"
+  toJSON ConwayEraInLegacyCardanoMode  = "ConwayEraInLegacyCardanoMode"
 
 eraInModeToEra :: EraInMode era mode -> CardanoEra era
 eraInModeToEra ByronEraInByronMode     = ByronEra
@@ -254,6 +286,14 @@ eraInModeToEra MaryEraInCardanoMode    = MaryEra
 eraInModeToEra AlonzoEraInCardanoMode  = AlonzoEra
 eraInModeToEra BabbageEraInCardanoMode = BabbageEra
 eraInModeToEra ConwayEraInCardanoMode  = ConwayEra
+eraInModeToEra ByronEraInLegacyCardanoMode   = ByronEra
+eraInModeToEra ShelleyEraInLegacyCardanoMode = ShelleyEra
+eraInModeToEra AllegraEraInLegacyCardanoMode = AllegraEra
+eraInModeToEra MaryEraInLegacyCardanoMode    = MaryEra
+eraInModeToEra AlonzoEraInLegacyCardanoMode  = AlonzoEra
+eraInModeToEra BabbageEraInLegacyCardanoMode = BabbageEra
+eraInModeToEra ConwayEraInLegacyCardanoMode  = ConwayEra
+
 
 
 data AnyEraInMode mode where
@@ -274,6 +314,13 @@ anyEraInModeToAnyEra (AnyEraInMode erainmode) =
     AlonzoEraInCardanoMode  -> AnyCardanoEra AlonzoEra
     BabbageEraInCardanoMode -> AnyCardanoEra BabbageEra
     ConwayEraInCardanoMode  -> AnyCardanoEra ConwayEra
+    ByronEraInLegacyCardanoMode   -> AnyCardanoEra ByronEra
+    ShelleyEraInLegacyCardanoMode -> AnyCardanoEra ShelleyEra
+    AllegraEraInLegacyCardanoMode -> AnyCardanoEra AllegraEra
+    MaryEraInLegacyCardanoMode    -> AnyCardanoEra MaryEra
+    AlonzoEraInLegacyCardanoMode  -> AnyCardanoEra AlonzoEra
+    BabbageEraInLegacyCardanoMode -> AnyCardanoEra BabbageEra
+    ConwayEraInLegacyCardanoMode  -> AnyCardanoEra ConwayEra
 
 
 -- | The consensus-mode-specific parameters needed to connect to a local node
@@ -301,6 +348,10 @@ data ConsensusModeParams mode where
        :: Byron.EpochSlots
        -> ConsensusModeParams CardanoMode
 
+     LegacyCardanoModeParams
+       :: Byron.EpochSlots
+       -> ConsensusModeParams LegacyCardanoMode
+
 deriving instance Show (ConsensusModeParams mode)
 
 -- ----------------------------------------------------------------------------
@@ -311,9 +362,16 @@ deriving instance Show (ConsensusModeParams mode)
 -- and the block type used by the consensus libraries.
 --
 type family ConsensusBlockForMode mode where
-  ConsensusBlockForMode ByronMode   = Consensus.ByronBlockHFC
-  ConsensusBlockForMode ShelleyMode = Consensus.ShelleyBlockHFC (Consensus.TPraos StandardCrypto) Consensus.StandardShelley
-  ConsensusBlockForMode CardanoMode = Consensus.CardanoBlock StandardCrypto
+  ConsensusBlockForMode ByronMode         = Consensus.ByronBlockHFC
+  ConsensusBlockForMode ShelleyMode       = Consensus.ShelleyBlockHFC (Consensus.TPraos StandardCrypto) Consensus.StandardShelley
+  ConsensusBlockForMode CardanoMode       = Consensus.CardanoBlock StandardCrypto
+  ConsensusBlockForMode LegacyCardanoMode = Consensus.LegacyCardanoBlock StandardCrypto
+
+type family ConsensusBlockForMode' mode where
+  ConsensusBlockForMode' ByronMode         = Identity Consensus.ByronBlockHFC
+  ConsensusBlockForMode' ShelleyMode       = Identity (Consensus.ShelleyBlockHFC (Consensus.TPraos StandardCrypto) Consensus.StandardShelley)
+  ConsensusBlockForMode' CardanoMode       = Identity (Consensus.CardanoBlock StandardCrypto)
+  ConsensusBlockForMode' LegacyCardanoMode = Consensus.LegacyCardanoBlock StandardCrypto
 
 type family ConsensusBlockForEra era where
   ConsensusBlockForEra ByronEra   = Consensus.ByronBlock
@@ -328,6 +386,7 @@ type family ConsensusCryptoForBlock block where
   ConsensusCryptoForBlock Consensus.ByronBlockHFC = StandardCrypto
   ConsensusCryptoForBlock (Consensus.ShelleyBlockHFC (Consensus.TPraos StandardCrypto) Consensus.StandardShelley) = Consensus.StandardShelley
   ConsensusCryptoForBlock (Consensus.CardanoBlock StandardCrypto) = StandardCrypto
+  ConsensusCryptoForBlock (Consensus.LegacyCardanoBlock StandardCrypto) = StandardCrypto
 
 type family ConsensusProtocol era where
   ConsensusProtocol ShelleyEra = Consensus.TPraos StandardCrypto
@@ -366,7 +425,7 @@ eraIndex5 = eraIndexSucc eraIndex4
 eraIndex6 :: Consensus.EraIndex (x6 : x5 : x4 : x3 : x2 : x1 : x0 : xs)
 eraIndex6 = eraIndexSucc eraIndex5
 
-toConsensusEraIndex :: ConsensusBlockForMode mode ~ Consensus.HardForkBlock xs
+toConsensusEraIndex :: ConsensusBlockForMode' mode ~ f (Consensus.HardForkBlock xs)
                     => EraInMode era mode
                     -> Consensus.EraIndex xs
 toConsensusEraIndex ByronEraInByronMode     = eraIndex0
@@ -380,8 +439,16 @@ toConsensusEraIndex AlonzoEraInCardanoMode  = eraIndex4
 toConsensusEraIndex BabbageEraInCardanoMode = eraIndex5
 toConsensusEraIndex ConwayEraInCardanoMode  = eraIndex6
 
+toConsensusEraIndex ByronEraInLegacyCardanoMode   = eraIndex0
+toConsensusEraIndex ShelleyEraInLegacyCardanoMode = eraIndex1
+toConsensusEraIndex AllegraEraInLegacyCardanoMode = eraIndex2
+toConsensusEraIndex MaryEraInLegacyCardanoMode    = eraIndex3
+toConsensusEraIndex AlonzoEraInLegacyCardanoMode  = eraIndex4
+toConsensusEraIndex BabbageEraInLegacyCardanoMode = eraIndex5
+toConsensusEraIndex ConwayEraInLegacyCardanoMode  = eraIndex6
 
-fromConsensusEraIndex :: ConsensusBlockForMode mode ~ Consensus.HardForkBlock xs
+
+fromConsensusEraIndex :: ConsensusBlockForMode' mode ~ f (Consensus.HardForkBlock xs)
                       => ConsensusMode mode
                       -> Consensus.EraIndex xs
                       -> AnyEraInMode mode
@@ -426,3 +493,29 @@ fromConsensusEraIndex CardanoMode = fromShelleyEraIndex
 
     fromShelleyEraIndex (Consensus.EraIndex (S (S (S (S (S (S (Z (K ()))))))))) =
       AnyEraInMode ConwayEraInCardanoMode
+
+fromConsensusEraIndex LegacyCardanoMode = fromShelleyEraIndex
+  where
+    fromShelleyEraIndex :: Consensus.EraIndex
+                             (Consensus.LegacyCardanoEras StandardCrypto)
+                        -> AnyEraInMode LegacyCardanoMode
+    fromShelleyEraIndex (Consensus.EraIndex (Z (K ()))) =
+      AnyEraInMode ByronEraInLegacyCardanoMode
+
+    fromShelleyEraIndex (Consensus.EraIndex (S (Z (K ())))) =
+      AnyEraInMode ShelleyEraInLegacyCardanoMode
+
+    fromShelleyEraIndex (Consensus.EraIndex (S (S (Z (K ()))))) =
+      AnyEraInMode AllegraEraInLegacyCardanoMode
+
+    fromShelleyEraIndex (Consensus.EraIndex (S (S (S (Z (K ())))))) =
+      AnyEraInMode MaryEraInLegacyCardanoMode
+
+    fromShelleyEraIndex (Consensus.EraIndex (S (S (S (S (Z (K ()))))))) =
+      AnyEraInMode AlonzoEraInLegacyCardanoMode
+
+    fromShelleyEraIndex (Consensus.EraIndex (S (S (S (S (S (Z (K ())))))))) =
+      AnyEraInMode BabbageEraInLegacyCardanoMode
+
+    fromShelleyEraIndex (Consensus.EraIndex (S (S (S (S (S (S (Z (K ()))))))))) =
+      AnyEraInMode ConwayEraInLegacyCardanoMode

@@ -44,6 +44,9 @@ import qualified Ouroboros.Consensus.TypeFamilyWrappers as Consensus
 
 import           Data.SOP.Strict (NS (S, Z))
 
+import qualified Legacy.LegacyBlock as Consensus
+import qualified Legacy.Cardano.Block as Consensus
+
 
 -- ----------------------------------------------------------------------------
 -- Transactions in the context of a consensus mode
@@ -107,6 +110,34 @@ fromConsensusGenTx CardanoMode (Consensus.HardForkGenTx (Consensus.OneEraGenTx (
   let Consensus.ShelleyTx _txid shelleyEraTx = tx'
   in TxInMode (ShelleyTx ShelleyBasedEraConway shelleyEraTx) ConwayEraInCardanoMode
 
+fromConsensusGenTx LegacyCardanoMode (Consensus.LegacyGenTx (Consensus.HardForkGenTx (Consensus.OneEraGenTx (Z tx')))) =
+  let Consensus.LegacyGenTx tx'' = tx'
+  in TxInByronSpecial tx'' ByronEraInLegacyCardanoMode
+
+fromConsensusGenTx LegacyCardanoMode (Consensus.LegacyGenTx (Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (Z tx'))))) =
+  let Consensus.LegacyGenTx (Consensus.ShelleyTx _txid shelleyEraTx) = tx'
+  in TxInMode (ShelleyTx ShelleyBasedEraShelley shelleyEraTx) ShelleyEraInLegacyCardanoMode
+
+fromConsensusGenTx LegacyCardanoMode (Consensus.LegacyGenTx (Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (Z tx')))))) =
+  let Consensus.LegacyGenTx (Consensus.ShelleyTx _txid shelleyEraTx) = tx'
+  in TxInMode (ShelleyTx ShelleyBasedEraAllegra shelleyEraTx) AllegraEraInLegacyCardanoMode
+
+fromConsensusGenTx LegacyCardanoMode (Consensus.LegacyGenTx (Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (Z tx'))))))) =
+  let Consensus.LegacyGenTx (Consensus.ShelleyTx _txid shelleyEraTx) = tx'
+  in TxInMode (ShelleyTx ShelleyBasedEraMary shelleyEraTx) MaryEraInLegacyCardanoMode
+
+fromConsensusGenTx LegacyCardanoMode (Consensus.LegacyGenTx (Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (S (Z tx')))))))) =
+  let Consensus.LegacyGenTx (Consensus.ShelleyTx _txid shelleyEraTx) = tx'
+  in TxInMode (ShelleyTx ShelleyBasedEraAlonzo shelleyEraTx) AlonzoEraInLegacyCardanoMode
+
+fromConsensusGenTx LegacyCardanoMode (Consensus.LegacyGenTx (Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (S (S (Z tx'))))))))) =
+  let Consensus.LegacyGenTx (Consensus.ShelleyTx _txid shelleyEraTx) = tx'
+  in TxInMode (ShelleyTx ShelleyBasedEraBabbage shelleyEraTx) BabbageEraInLegacyCardanoMode
+
+fromConsensusGenTx LegacyCardanoMode (Consensus.LegacyGenTx (Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (S (S (S (Z tx')))))))))) =
+  let Consensus.LegacyGenTx (Consensus.ShelleyTx _txid shelleyEraTx) = tx'
+  in TxInMode (ShelleyTx ShelleyBasedEraConway shelleyEraTx) ConwayEraInLegacyCardanoMode
+
 toConsensusGenTx :: ConsensusBlockForMode mode ~ block
                  => TxInMode mode
                  -> Consensus.GenTx block
@@ -163,9 +194,51 @@ toConsensusGenTx (TxInMode (ShelleyTx _ tx) ConwayEraInCardanoMode) =
   where
     tx' = Consensus.mkShelleyTx tx
 
+toConsensusGenTx (TxInMode (ByronTx tx) ByronEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (Z tx'))
+  where
+    tx' = Consensus.LegacyGenTx $ Consensus.ByronTx (Consensus.byronIdTx tx) tx
+    --TODO: add the above as mkByronTx to the consensus code,
+    -- matching mkShelleyTx below
+
+toConsensusGenTx (TxInByronSpecial gtx ByronEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (Z $ Consensus.LegacyGenTx gtx))
+
+toConsensusGenTx (TxInMode (ShelleyTx _ tx) ShelleyEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (Z tx')))
+  where
+    tx' = Consensus.LegacyGenTx $ Consensus.mkShelleyTx tx
+
+toConsensusGenTx (TxInMode (ShelleyTx _ tx) AllegraEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (Z tx'))))
+  where
+    tx' = Consensus.LegacyGenTx $ Consensus.mkShelleyTx tx
+
+toConsensusGenTx (TxInMode (ShelleyTx _ tx) MaryEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (Z tx')))))
+  where
+    tx' = Consensus.LegacyGenTx $ Consensus.mkShelleyTx tx
+
+toConsensusGenTx (TxInMode (ShelleyTx _ tx) AlonzoEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (S (Z tx'))))))
+  where
+    tx' = Consensus.LegacyGenTx $ Consensus.mkShelleyTx tx
+
+toConsensusGenTx (TxInMode (ShelleyTx _ tx) BabbageEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (S (S (Z tx')))))))
+  where
+    tx' = Consensus.LegacyGenTx $ Consensus.mkShelleyTx tx
+
+toConsensusGenTx (TxInMode (ShelleyTx _ tx) ConwayEraInLegacyCardanoMode) =
+    Consensus.LegacyGenTx $ Consensus.HardForkGenTx (Consensus.OneEraGenTx (S (S (S (S (S (S (Z tx'))))))))
+  where
+    tx' = Consensus.LegacyGenTx $ Consensus.mkShelleyTx tx
+
 toConsensusGenTx (TxInMode (ShelleyTx _ _) ByronEraInByronMode) =
   error "Cardano.Api.InMode.toConsensusGenTx: ShelleyTx In Byron era"
 toConsensusGenTx (TxInMode (ShelleyTx _ _) ByronEraInCardanoMode) =
+  error "Cardano.Api.InMode.toConsensusGenTx: ShelleyTx In Byron era"
+toConsensusGenTx (TxInMode (ShelleyTx _ _) ByronEraInLegacyCardanoMode) =
   error "Cardano.Api.InMode.toConsensusGenTx: ShelleyTx In Byron era"
 
 -- ----------------------------------------------------------------------------
@@ -238,6 +311,48 @@ toConsensusTxId (TxIdInMode txid ConwayEraInCardanoMode) =
  where
   txid' :: Consensus.TxId (Consensus.GenTx Consensus.StandardConwayBlock)
   txid' = Consensus.ShelleyTxId $ toShelleyTxId txid
+
+toConsensusTxId (TxIdInMode txid ByronEraInLegacyCardanoMode) =
+  Consensus.LegacyTxId $ Consensus.HardForkGenTxId . Consensus.OneEraGenTxId . Z $ Consensus.WrapGenTxId txid'
+ where
+  txid' :: Consensus.TxId (Consensus.GenTx (Consensus.LegacyBlock Consensus.ByronBlock))
+  txid' = Consensus.LegacyTxId $ Consensus.ByronTxId $ toByronTxId txid
+
+toConsensusTxId (TxIdInMode txid ShelleyEraInLegacyCardanoMode) =
+  Consensus.LegacyTxId $ Consensus.HardForkGenTxId (Consensus.OneEraGenTxId (S (Z (Consensus.WrapGenTxId txid'))))
+ where
+  txid' :: Consensus.TxId (Consensus.GenTx (Consensus.LegacyBlock Consensus.StandardShelleyBlock))
+  txid' = Consensus.LegacyTxId $ Consensus.ShelleyTxId $ toShelleyTxId txid
+
+toConsensusTxId (TxIdInMode txid AllegraEraInLegacyCardanoMode) =
+  Consensus.LegacyTxId $ Consensus.HardForkGenTxId (Consensus.OneEraGenTxId (S (S (Z (Consensus.WrapGenTxId txid')))))
+ where
+  txid' :: Consensus.TxId (Consensus.GenTx (Consensus.LegacyBlock Consensus.StandardAllegraBlock))
+  txid' = Consensus.LegacyTxId $ Consensus.ShelleyTxId $ toShelleyTxId txid
+
+toConsensusTxId (TxIdInMode txid MaryEraInLegacyCardanoMode) =
+  Consensus.LegacyTxId $ Consensus.HardForkGenTxId (Consensus.OneEraGenTxId (S (S (S (Z (Consensus.WrapGenTxId txid'))))))
+ where
+  txid' :: Consensus.TxId (Consensus.GenTx (Consensus.LegacyBlock Consensus.StandardMaryBlock))
+  txid' = Consensus.LegacyTxId $ Consensus.ShelleyTxId $ toShelleyTxId txid
+
+toConsensusTxId (TxIdInMode txid AlonzoEraInLegacyCardanoMode) =
+  Consensus.LegacyTxId $ Consensus.HardForkGenTxId (Consensus.OneEraGenTxId (S (S (S (S (Z (Consensus.WrapGenTxId txid')))))))
+ where
+  txid' :: Consensus.TxId (Consensus.GenTx (Consensus.LegacyBlock Consensus.StandardAlonzoBlock))
+  txid' = Consensus.LegacyTxId $ Consensus.ShelleyTxId $ toShelleyTxId txid
+
+toConsensusTxId (TxIdInMode txid BabbageEraInLegacyCardanoMode) =
+  Consensus.LegacyTxId $ Consensus.HardForkGenTxId (Consensus.OneEraGenTxId (S (S (S (S (S (Z (Consensus.WrapGenTxId txid'))))))))
+ where
+  txid' :: Consensus.TxId (Consensus.GenTx (Consensus.LegacyBlock Consensus.StandardBabbageBlock))
+  txid' = Consensus.LegacyTxId $ Consensus.ShelleyTxId $ toShelleyTxId txid
+
+toConsensusTxId (TxIdInMode txid ConwayEraInLegacyCardanoMode) =
+  Consensus.LegacyTxId $ Consensus.HardForkGenTxId (Consensus.OneEraGenTxId (S (S (S (S (S (S (Z (Consensus.WrapGenTxId txid')))))))))
+ where
+  txid' :: Consensus.TxId (Consensus.GenTx (Consensus.LegacyBlock Consensus.StandardConwayBlock))
+  txid' = Consensus.LegacyTxId $ Consensus.ShelleyTxId $ toShelleyTxId txid
 
 -- ----------------------------------------------------------------------------
 -- Transaction validation errors in the context of eras and consensus modes
@@ -372,3 +487,35 @@ fromConsensusApplyTxErr CardanoMode (Consensus.ApplyTxErrConway err) =
 
 fromConsensusApplyTxErr CardanoMode (Consensus.ApplyTxErrWrongEra err) =
     TxValidationEraMismatch err
+
+fromConsensusApplyTxErr LegacyCardanoMode err0 = case Consensus.coerceHardForkApplyTxErr err0 of
+    (Consensus.ApplyTxErrByron err) ->
+      TxValidationErrorInMode
+        (ByronTxValidationError err)
+        ByronEraInLegacyCardanoMode
+    (Consensus.ApplyTxErrShelley err) ->
+      TxValidationErrorInMode
+        (ShelleyTxValidationError ShelleyBasedEraShelley err)
+        ShelleyEraInLegacyCardanoMode
+    (Consensus.ApplyTxErrAllegra err) ->
+      TxValidationErrorInMode
+        (ShelleyTxValidationError ShelleyBasedEraAllegra err)
+        AllegraEraInLegacyCardanoMode
+    (Consensus.ApplyTxErrMary err) ->
+      TxValidationErrorInMode
+        (ShelleyTxValidationError ShelleyBasedEraMary err)
+        MaryEraInLegacyCardanoMode
+    (Consensus.ApplyTxErrAlonzo err) ->
+      TxValidationErrorInMode
+        (ShelleyTxValidationError ShelleyBasedEraAlonzo err)
+        AlonzoEraInLegacyCardanoMode
+    (Consensus.ApplyTxErrBabbage err) ->
+      TxValidationErrorInMode
+        (ShelleyTxValidationError ShelleyBasedEraBabbage err)
+        BabbageEraInLegacyCardanoMode
+    (Consensus.ApplyTxErrConway err) ->
+      TxValidationErrorInMode
+        (ShelleyTxValidationError ShelleyBasedEraConway err)
+        ConwayEraInLegacyCardanoMode
+    (Consensus.ApplyTxErrWrongEra err) ->
+      TxValidationEraMismatch err

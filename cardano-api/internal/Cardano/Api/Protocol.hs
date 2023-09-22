@@ -40,6 +40,7 @@ import           Ouroboros.Consensus.Util.IOLike (IOLike)
 import           Data.Bifunctor (bimap)
 
 import           Type.Reflection ((:~:) (..))
+import Legacy.Cardano (LegacyCardanoBlock, LegacyCardanoHardForkConstraints)
 
 class (RunNode blk, IOLike m) => Protocol m blk where
   data ProtocolInfoArgs blk
@@ -111,6 +112,26 @@ instance (CardanoHardForkConstraints StandardCrypto, IOLike m) => Protocol m (Ca
       paramsAlonzoBabbage
       paramsBabbageConway
 
+instance (LegacyCardanoHardForkConstraints StandardCrypto, IOLike m) => Protocol m (LegacyCardanoBlock StandardCrypto) where
+  data ProtocolInfoArgs (LegacyCardanoBlock StandardCrypto) =
+         ProtocolInfoArgsLegacyCardano
+           ProtocolParamsByron
+          (ProtocolParamsShelleyBased StandardShelley)
+          (ProtocolParamsShelley StandardCrypto)
+          (ProtocolParamsAllegra StandardCrypto)
+          (ProtocolParamsMary StandardCrypto)
+          (ProtocolParamsAlonzo StandardCrypto)
+          (ProtocolParamsBabbage StandardCrypto)
+          (ProtocolParamsConway StandardCrypto)
+          (ProtocolTransitionParamsShelleyBased StandardShelley)
+          (ProtocolTransitionParamsShelleyBased StandardAllegra)
+          (ProtocolTransitionParamsShelleyBased StandardMary)
+          (ProtocolTransitionParamsShelleyBased StandardAlonzo)
+          (ProtocolTransitionParamsShelleyBased StandardBabbage)
+          (ProtocolTransitionParamsShelleyBased StandardConway)
+
+  protocolInfo = undefined
+
 instance ProtocolClient ByronBlockHFC where
   data ProtocolClientInfoArgs ByronBlockHFC =
     ProtocolClientInfoArgsByron EpochSlots
@@ -122,6 +143,11 @@ instance CardanoHardForkConstraints StandardCrypto => ProtocolClient (CardanoBlo
     ProtocolClientInfoArgsCardano EpochSlots
   protocolClientInfo (ProtocolClientInfoArgsCardano epochSlots) =
     protocolClientInfoCardano epochSlots
+
+instance LegacyCardanoHardForkConstraints StandardCrypto => ProtocolClient (LegacyCardanoBlock StandardCrypto) where
+  data ProtocolClientInfoArgs (LegacyCardanoBlock StandardCrypto) =
+    LegacyProtocolClientInfoArgsCardano EpochSlots
+  protocolClientInfo = undefined
 
 instance ( IOLike m
          , Consensus.LedgerSupportsProtocol
@@ -148,6 +174,7 @@ data BlockType blk where
   ByronBlockType :: BlockType ByronBlockHFC
   ShelleyBlockType :: BlockType (ShelleyBlockHFC (Consensus.TPraos StandardCrypto) StandardShelley)
   CardanoBlockType :: BlockType (CardanoBlock StandardCrypto)
+  LegacyCardanoBlockType :: BlockType (LegacyCardanoBlock StandardCrypto)
 
 deriving instance Eq (BlockType blk)
 deriving instance Show (BlockType blk)
