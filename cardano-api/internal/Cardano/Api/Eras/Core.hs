@@ -270,9 +270,9 @@ instance IsCardanoEra ConwayEra where
    cardanoEra      = ConwayEra
 
 data AnyCardanoEra where
-     AnyCardanoEra :: IsCardanoEra era  -- Provide class constraint
-                   => CardanoEra era    -- and explicit value.
-                   -> AnyCardanoEra
+  AnyCardanoEra
+    :: CardanoEra era
+    -> AnyCardanoEra
 
 deriving instance Show AnyCardanoEra
 
@@ -346,10 +346,10 @@ anyCardanoEra = \case
 -- not statically known, for example when deserialising from a file.
 --
 data InAnyCardanoEra thing where
-     InAnyCardanoEra :: IsCardanoEra era  -- Provide class constraint
-                     => CardanoEra era    -- and explicit value.
-                     -> thing era
-                     -> InAnyCardanoEra thing
+  InAnyCardanoEra
+    :: CardanoEra era
+    -> thing era
+    -> InAnyCardanoEra thing
 
 -- ----------------------------------------------------------------------------
 -- Conversion to ledger library types

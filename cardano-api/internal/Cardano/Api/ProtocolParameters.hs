@@ -1840,8 +1840,7 @@ fromConwayPParams :: BabbageEraPParams ledgerera
                   -> ProtocolParameters
 fromConwayPParams = fromBabbagePParams
 
-checkProtocolParameters
-  :: forall era. IsCardanoEra era
+checkProtocolParameters :: ()
   => ShelleyBasedEra era
   -> ProtocolParameters
   -> Either ProtocolParametersError ()
@@ -1854,7 +1853,6 @@ checkProtocolParameters sbe ProtocolParameters{..} =
     ShelleyBasedEraBabbage -> checkBabbageParams
     ShelleyBasedEraConway -> checkBabbageParams
  where
-   era :: CardanoEra era
    era = shelleyBasedToCardanoEra sbe
 
    costPerWord = isJust protocolParamUTxOCostPerWord
@@ -1912,9 +1910,8 @@ checkProtocolParameters sbe ProtocolParameters{..} =
    checkMinUTxOVal :: Either ProtocolParametersError ()
    checkMinUTxOVal =
      if isJust protocolParamMinUTxOValue
-     then return ()
-     else Left . PParamsErrorMissingMinUTxoValue
-               $ AnyCardanoEra era
+      then return ()
+      else Left . PParamsErrorMissingMinUTxoValue $ cardanoEraConstraints era $ AnyCardanoEra era
 
 
 data ProtocolParametersError
