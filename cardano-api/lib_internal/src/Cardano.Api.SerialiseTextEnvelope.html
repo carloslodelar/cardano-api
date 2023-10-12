@@ -1,0 +1,1226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span id="local-6989586621680767874"><span id="local-6989586621680767875"><span id="local-6989586621680767876"><span id="local-6989586621680767877"><span id="local-6989586621680767878"><span id="local-6989586621680767879"><span id="local-6989586621680767880"><span id="local-6989586621680767881"></span></span></span></span></span></span></span></span><span class="hs-pragma">{-# LANGUAGE DataKinds #-}</span><span>
+</span><span id="line-2"></span><span class="hs-pragma">{-# LANGUAGE DeriveDataTypeable #-}</span><span>
+</span><span id="line-3"></span><span class="hs-pragma">{-# LANGUAGE DerivingStrategies #-}</span><span>
+</span><span id="line-4"></span><span class="hs-pragma">{-# LANGUAGE GADTs #-}</span><span>
+</span><span id="line-5"></span><span class="hs-pragma">{-# LANGUAGE GeneralizedNewtypeDeriving #-}</span><span>
+</span><span id="line-6"></span><span class="hs-pragma">{-# LANGUAGE NamedFieldPuns #-}</span><span>
+</span><span id="line-7"></span><span class="hs-pragma">{-# LANGUAGE ScopedTypeVariables #-}</span><span>
+</span><span id="line-8"></span><span class="hs-pragma">{-# LANGUAGE TypeFamilies #-}</span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span class="hs-comment">-- | TextEnvelope Serialisation</span><span>
+</span><span id="line-11"></span><span class="hs-comment">--</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.Api.SerialiseTextEnvelope</span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">(</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier">HasTextEnvelope</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeTypeInEra"><span class="hs-identifier">textEnvelopeTypeInEra</span></a></span><span>
+</span><span id="line-15"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier">TextEnvelope</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-16"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier">TextEnvelopeType</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-17"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier">TextEnvelopeDescr</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeRawCBOR"><span class="hs-identifier">textEnvelopeRawCBOR</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier">TextEnvelopeError</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#serialiseToTextEnvelope"><span class="hs-identifier">serialiseToTextEnvelope</span></a></span><span>
+</span><span id="line-21"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelope"><span class="hs-identifier">deserialiseFromTextEnvelope</span></a></span><span>
+</span><span id="line-22"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readFileTextEnvelope"><span class="hs-identifier">readFileTextEnvelope</span></a></span><span>
+</span><span id="line-23"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#writeFileTextEnvelope"><span class="hs-identifier">writeFileTextEnvelope</span></a></span><span>
+</span><span id="line-24"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readTextEnvelopeFromFile"><span class="hs-identifier">readTextEnvelopeFromFile</span></a></span><span>
+</span><span id="line-25"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readTextEnvelopeOfTypeFromFile"><span class="hs-identifier">readTextEnvelopeOfTypeFromFile</span></a></span><span>
+</span><span id="line-26"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier">textEnvelopeToJSON</span></a></span><span>
+</span><span id="line-27"></span><span>
+</span><span id="line-28"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Reading one of several key types</span></span><span>
+</span><span id="line-29"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#FromSomeType"><span class="hs-identifier">FromSomeType</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-30"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelopeAnyOf"><span class="hs-identifier">deserialiseFromTextEnvelopeAnyOf</span></a></span><span>
+</span><span id="line-31"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readFileTextEnvelopeAnyOf"><span class="hs-identifier">readFileTextEnvelopeAnyOf</span></a></span><span>
+</span><span id="line-32"></span><span>
+</span><span id="line-33"></span><span>    </span><span class="annot"><span class="hs-comment">-- * Data family instances</span></span><span>
+</span><span id="line-34"></span><span>  </span><span class="hs-special">,</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#AsType"><span class="hs-identifier">AsType</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-35"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-36"></span><span>
+</span><span id="line-37"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.Api.Eras.html"><span class="hs-identifier">Cardano.Api.Eras</span></a></span><span>
+</span><span id="line-38"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.Api.Error.html"><span class="hs-identifier">Cardano.Api.Error</span></a></span><span>
+</span><span id="line-39"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html"><span class="hs-identifier">Cardano.Api.HasTypeProxy</span></a></span><span>
+</span><span id="line-40"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.Api.IO.html"><span class="hs-identifier">Cardano.Api.IO</span></a></span><span>
+</span><span id="line-41"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.Api.Orphans.html"><span class="hs-identifier">Cardano.Api.Orphans</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-42"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.Api.SerialiseCBOR.html"><span class="hs-identifier">Cardano.Api.SerialiseCBOR</span></a></span><span>
+</span><span id="line-43"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="Cardano.Api.Utils.html"><span class="hs-identifier">Cardano.Api.Utils</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.Utils.html#readFileBlocking"><span class="hs-identifier">readFileBlocking</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-44"></span><span>
+</span><span id="line-45"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-binary-1.7.0.1-0c345eec6449f7d784644477ca59f64ca73d502290b831a2f1de8681b94ead87/share/doc/html/src"><span class="hs-identifier">Cardano.Binary</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-binary-1.7.0.1-0c345eec6449f7d784644477ca59f64ca73d502290b831a2f1de8681b94ead87/share/doc/html/src"><span class="hs-identifier">DecoderError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-46"></span><span>
+</span><span id="line-47"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Control.Monad</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">unless</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-48"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier">Control.Monad.Trans.Except</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier">ExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier">runExceptT</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-49"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier">Control.Monad.Trans.Except.Extra</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier">firstExceptT</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier">hoistEither</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-50"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier">Data.Aeson</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier">FromJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier">ToJSON</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier">object</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier">withObject</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator">(.:)</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator">(.=)</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-51"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier">Data.Aeson</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Aeson</span></span><span>
+</span><span id="line-52"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier">Data.Aeson.Encode.Pretty</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier">Config</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier">defConfig</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier">encodePretty'</span></a></span><span class="hs-special">,</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier">keyOrder</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-53"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data.Bifunctor</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">first</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-54"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/bytestring-0.11.4.0/src"><span class="hs-identifier">Data.ByteString</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/bytestring-0.11.4.0/src"><span class="hs-identifier">ByteString</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-55"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/base16-bytestring-1.0.2.0-6f5a6fc7d30ba5c6cb58925bf734cb399a0439042618a9aeb7724687c577350d/share/doc/html/src"><span class="hs-identifier">Data.ByteString.Base16</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Base16</span></span><span>
+</span><span id="line-56"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/bytestring-0.11.4.0/src"><span class="hs-identifier">Data.ByteString.Lazy</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">LBS</span></span><span>
+</span><span id="line-57"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data.Data</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-58"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data.List</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">List</span></span><span>
+</span><span id="line-59"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data.Maybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">fromMaybe</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-60"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">Data.String</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier">IsString</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-61"></span><span class="hs-keyword">import</span><span>           </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.0.2-c7eb3c57f6453e3c5272766702090d9a6756165468e4b3572f5b63769867b99a/share/doc/html/src"><span class="hs-identifier">Data.Text</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.0.2-c7eb3c57f6453e3c5272766702090d9a6756165468e4b3572f5b63769867b99a/share/doc/html/src"><span class="hs-identifier">Text</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-62"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.0.2-c7eb3c57f6453e3c5272766702090d9a6756165468e4b3572f5b63769867b99a/share/doc/html/src"><span class="hs-identifier">Data.Text.Encoding</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Text</span></span><span>
+</span><span id="line-63"></span><span>
+</span><span id="line-64"></span><span class="hs-comment">-- ----------------------------------------------------------------------------</span><span>
+</span><span id="line-65"></span><span class="hs-comment">-- Text envelopes</span><span>
+</span><span id="line-66"></span><span class="hs-comment">--</span><span>
+</span><span id="line-67"></span><span>
+</span><span id="line-68"></span><span class="hs-keyword">newtype</span><span> </span><span id="TextEnvelopeType"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-var">TextEnvelopeType</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TextEnvelopeType"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-var">TextEnvelopeType</span></a></span></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-69"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680767817"><span id="local-6989586621680767823"><span class="annot"><span class="annottext">TextEnvelopeType -&gt; TextEnvelopeType -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: TextEnvelopeType -&gt; TextEnvelopeType -&gt; Bool
+$c/= :: TextEnvelopeType -&gt; TextEnvelopeType -&gt; Bool
+== :: TextEnvelopeType -&gt; TextEnvelopeType -&gt; Bool
+$c== :: TextEnvelopeType -&gt; TextEnvelopeType -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767801"><span id="local-6989586621680767803"><span id="local-6989586621680767810"><span class="annot"><span class="annottext">Int -&gt; TextEnvelopeType -&gt; ShowS
+[TextEnvelopeType] -&gt; ShowS
+TextEnvelopeType -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [TextEnvelopeType] -&gt; ShowS
+$cshowList :: [TextEnvelopeType] -&gt; ShowS
+show :: TextEnvelopeType -&gt; String
+$cshow :: TextEnvelopeType -&gt; String
+showsPrec :: Int -&gt; TextEnvelopeType -&gt; ShowS
+$cshowsPrec :: Int -&gt; TextEnvelopeType -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767764"><span id="local-6989586621680767766"><span id="local-6989586621680767768"><span id="local-6989586621680767770"><span id="local-6989586621680767772"><span id="local-6989586621680767774"><span id="local-6989586621680767776"><span id="local-6989586621680767778"><span id="local-6989586621680767780"><span id="local-6989586621680767782"><span id="local-6989586621680767784"><span id="local-6989586621680767786"><span id="local-6989586621680767790"><span id="local-6989586621680767795"><span class="annot"><span class="annottext">Typeable TextEnvelopeType
+TextEnvelopeType -&gt; DataType
+TextEnvelopeType -&gt; Constr
+(forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeType -&gt; TextEnvelopeType
+forall a.
+Typeable a
+-&gt; (forall (c :: * -&gt; *).
+    (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+    -&gt; (forall g. g -&gt; c g) -&gt; a -&gt; c a)
+-&gt; (forall (c :: * -&gt; *).
+    (forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+    -&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c a)
+-&gt; (a -&gt; Constr)
+-&gt; (a -&gt; DataType)
+-&gt; (forall (t :: * -&gt; *) (c :: * -&gt; *).
+    Typeable t =&gt;
+    (forall d. Data d =&gt; c (t d)) -&gt; Maybe (c a))
+-&gt; (forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+    Typeable t =&gt;
+    (forall d e. (Data d, Data e) =&gt; c (t d e)) -&gt; Maybe (c a))
+-&gt; ((forall b. Data b =&gt; b -&gt; b) -&gt; a -&gt; a)
+-&gt; (forall r r'.
+    (r -&gt; r' -&gt; r) -&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; a -&gt; r)
+-&gt; (forall r r'.
+    (r' -&gt; r -&gt; r) -&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; a -&gt; r)
+-&gt; (forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; a -&gt; [u])
+-&gt; (forall u. Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; a -&gt; u)
+-&gt; (forall (m :: * -&gt; *).
+    Monad m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; (forall (m :: * -&gt; *).
+    MonadPlus m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; (forall (m :: * -&gt; *).
+    MonadPlus m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; Data a
+forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeType -&gt; u
+forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeType -&gt; [u]
+forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeType -&gt; r
+forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeType -&gt; r
+forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeType
+forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeType -&gt; c TextEnvelopeType
+forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeType)
+forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeType)
+gmapMo :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+$cgmapMo :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+gmapMp :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+$cgmapMp :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+gmapM :: forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+$cgmapM :: forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeType -&gt; m TextEnvelopeType
+gmapQi :: forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeType -&gt; u
+$cgmapQi :: forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeType -&gt; u
+gmapQ :: forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeType -&gt; [u]
+$cgmapQ :: forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeType -&gt; [u]
+gmapQr :: forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeType -&gt; r
+$cgmapQr :: forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeType -&gt; r
+gmapQl :: forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeType -&gt; r
+$cgmapQl :: forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeType -&gt; r
+gmapT :: (forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeType -&gt; TextEnvelopeType
+$cgmapT :: (forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeType -&gt; TextEnvelopeType
+dataCast2 :: forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeType)
+$cdataCast2 :: forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeType)
+dataCast1 :: forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeType)
+$cdataCast1 :: forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeType)
+dataTypeOf :: TextEnvelopeType -&gt; DataType
+$cdataTypeOf :: TextEnvelopeType -&gt; DataType
+toConstr :: TextEnvelopeType -&gt; Constr
+$ctoConstr :: TextEnvelopeType -&gt; Constr
+gunfold :: forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeType
+$cgunfold :: forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeType
+gfoldl :: forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeType -&gt; c TextEnvelopeType
+$cgfoldl :: forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeType -&gt; c TextEnvelopeType
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-70"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">newtype</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621680767760"><span class="annot"><span class="annottext">String -&gt; TextEnvelopeType
+forall a. (String -&gt; a) -&gt; IsString a
+fromString :: String -&gt; TextEnvelopeType
+$cfromString :: String -&gt; TextEnvelopeType
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">IsString</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767741"><span id="local-6989586621680767747"><span id="local-6989586621680767752"><span class="annot"><span class="annottext">NonEmpty TextEnvelopeType -&gt; TextEnvelopeType
+TextEnvelopeType -&gt; TextEnvelopeType -&gt; TextEnvelopeType
+forall b. Integral b =&gt; b -&gt; TextEnvelopeType -&gt; TextEnvelopeType
+forall a.
+(a -&gt; a -&gt; a)
+-&gt; (NonEmpty a -&gt; a)
+-&gt; (forall b. Integral b =&gt; b -&gt; a -&gt; a)
+-&gt; Semigroup a
+stimes :: forall b. Integral b =&gt; b -&gt; TextEnvelopeType -&gt; TextEnvelopeType
+$cstimes :: forall b. Integral b =&gt; b -&gt; TextEnvelopeType -&gt; TextEnvelopeType
+sconcat :: NonEmpty TextEnvelopeType -&gt; TextEnvelopeType
+$csconcat :: NonEmpty TextEnvelopeType -&gt; TextEnvelopeType
+&lt;&gt; :: TextEnvelopeType -&gt; TextEnvelopeType -&gt; TextEnvelopeType
+$c&lt;&gt; :: TextEnvelopeType -&gt; TextEnvelopeType -&gt; TextEnvelopeType
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Semigroup</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767717"><span id="local-6989586621680767722"><span id="local-6989586621680767727"><span id="local-6989586621680767733"><span class="annot"><span class="annottext">[TextEnvelopeType] -&gt; Encoding
+[TextEnvelopeType] -&gt; Value
+TextEnvelopeType -&gt; Encoding
+TextEnvelopeType -&gt; Value
+forall a.
+(a -&gt; Value)
+-&gt; (a -&gt; Encoding)
+-&gt; ([a] -&gt; Value)
+-&gt; ([a] -&gt; Encoding)
+-&gt; ToJSON a
+toEncodingList :: [TextEnvelopeType] -&gt; Encoding
+$ctoEncodingList :: [TextEnvelopeType] -&gt; Encoding
+toJSONList :: [TextEnvelopeType] -&gt; Value
+$ctoJSONList :: [TextEnvelopeType] -&gt; Value
+toEncoding :: TextEnvelopeType -&gt; Encoding
+$ctoEncoding :: TextEnvelopeType -&gt; Encoding
+toJSON :: TextEnvelopeType -&gt; Value
+$ctoJSON :: TextEnvelopeType -&gt; Value
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ToJSON</span></a></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767703"><span id="local-6989586621680767709"><span class="annot"><span class="annottext">Value -&gt; Parser [TextEnvelopeType]
+Value -&gt; Parser TextEnvelopeType
+forall a.
+(Value -&gt; Parser a) -&gt; (Value -&gt; Parser [a]) -&gt; FromJSON a
+parseJSONList :: Value -&gt; Parser [TextEnvelopeType]
+$cparseJSONList :: Value -&gt; Parser [TextEnvelopeType]
+parseJSON :: Value -&gt; Parser TextEnvelopeType
+$cparseJSON :: Value -&gt; Parser TextEnvelopeType
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">FromJSON</span></a></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-71"></span><span>
+</span><span id="line-72"></span><span class="hs-keyword">newtype</span><span> </span><span id="TextEnvelopeDescr"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-var">TextEnvelopeDescr</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TextEnvelopeDescr"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-var">TextEnvelopeDescr</span></a></span></span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-73"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680767689"><span id="local-6989586621680767694"><span class="annot"><span class="annottext">TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; Bool
+$c/= :: TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; Bool
+== :: TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; Bool
+$c== :: TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767676"><span id="local-6989586621680767678"><span id="local-6989586621680767683"><span class="annot"><span class="annottext">Int -&gt; TextEnvelopeDescr -&gt; ShowS
+[TextEnvelopeDescr] -&gt; ShowS
+TextEnvelopeDescr -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [TextEnvelopeDescr] -&gt; ShowS
+$cshowList :: [TextEnvelopeDescr] -&gt; ShowS
+show :: TextEnvelopeDescr -&gt; String
+$cshow :: TextEnvelopeDescr -&gt; String
+showsPrec :: Int -&gt; TextEnvelopeDescr -&gt; ShowS
+$cshowsPrec :: Int -&gt; TextEnvelopeDescr -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767642"><span id="local-6989586621680767644"><span id="local-6989586621680767646"><span id="local-6989586621680767648"><span id="local-6989586621680767650"><span id="local-6989586621680767652"><span id="local-6989586621680767654"><span id="local-6989586621680767656"><span id="local-6989586621680767658"><span id="local-6989586621680767660"><span id="local-6989586621680767662"><span id="local-6989586621680767664"><span id="local-6989586621680767668"><span id="local-6989586621680767672"><span class="annot"><span class="annottext">Typeable TextEnvelopeDescr
+TextEnvelopeDescr -&gt; DataType
+TextEnvelopeDescr -&gt; Constr
+(forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+forall a.
+Typeable a
+-&gt; (forall (c :: * -&gt; *).
+    (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+    -&gt; (forall g. g -&gt; c g) -&gt; a -&gt; c a)
+-&gt; (forall (c :: * -&gt; *).
+    (forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+    -&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c a)
+-&gt; (a -&gt; Constr)
+-&gt; (a -&gt; DataType)
+-&gt; (forall (t :: * -&gt; *) (c :: * -&gt; *).
+    Typeable t =&gt;
+    (forall d. Data d =&gt; c (t d)) -&gt; Maybe (c a))
+-&gt; (forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+    Typeable t =&gt;
+    (forall d e. (Data d, Data e) =&gt; c (t d e)) -&gt; Maybe (c a))
+-&gt; ((forall b. Data b =&gt; b -&gt; b) -&gt; a -&gt; a)
+-&gt; (forall r r'.
+    (r -&gt; r' -&gt; r) -&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; a -&gt; r)
+-&gt; (forall r r'.
+    (r' -&gt; r -&gt; r) -&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; a -&gt; r)
+-&gt; (forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; a -&gt; [u])
+-&gt; (forall u. Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; a -&gt; u)
+-&gt; (forall (m :: * -&gt; *).
+    Monad m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; (forall (m :: * -&gt; *).
+    MonadPlus m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; (forall (m :: * -&gt; *).
+    MonadPlus m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; Data a
+forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeDescr -&gt; u
+forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeDescr -&gt; [u]
+forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeDescr -&gt; r
+forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeDescr -&gt; r
+forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeDescr
+forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeDescr -&gt; c TextEnvelopeDescr
+forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeDescr)
+forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeDescr)
+gmapMo :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+$cgmapMo :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+gmapMp :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+$cgmapMp :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+gmapM :: forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+$cgmapM :: forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeDescr -&gt; m TextEnvelopeDescr
+gmapQi :: forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeDescr -&gt; u
+$cgmapQi :: forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeDescr -&gt; u
+gmapQ :: forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeDescr -&gt; [u]
+$cgmapQ :: forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeDescr -&gt; [u]
+gmapQr :: forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeDescr -&gt; r
+$cgmapQr :: forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeDescr -&gt; r
+gmapQl :: forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeDescr -&gt; r
+$cgmapQl :: forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeDescr -&gt; r
+gmapT :: (forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+$cgmapT :: (forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+dataCast2 :: forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeDescr)
+$cdataCast2 :: forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeDescr)
+dataCast1 :: forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeDescr)
+$cdataCast1 :: forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeDescr)
+dataTypeOf :: TextEnvelopeDescr -&gt; DataType
+$cdataTypeOf :: TextEnvelopeDescr -&gt; DataType
+toConstr :: TextEnvelopeDescr -&gt; Constr
+$ctoConstr :: TextEnvelopeDescr -&gt; Constr
+gunfold :: forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeDescr
+$cgunfold :: forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeDescr
+gfoldl :: forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeDescr -&gt; c TextEnvelopeDescr
+$cgfoldl :: forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeDescr -&gt; c TextEnvelopeDescr
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-74"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="annot"><span class="hs-keyword">newtype</span></span><span> </span><span class="hs-special">(</span><span id="local-6989586621680767640"><span class="annot"><span class="annottext">String -&gt; TextEnvelopeDescr
+forall a. (String -&gt; a) -&gt; IsString a
+fromString :: String -&gt; TextEnvelopeDescr
+$cfromString :: String -&gt; TextEnvelopeDescr
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">IsString</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767624"><span id="local-6989586621680767630"><span id="local-6989586621680767634"><span class="annot"><span class="annottext">NonEmpty TextEnvelopeDescr -&gt; TextEnvelopeDescr
+TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+forall b. Integral b =&gt; b -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+forall a.
+(a -&gt; a -&gt; a)
+-&gt; (NonEmpty a -&gt; a)
+-&gt; (forall b. Integral b =&gt; b -&gt; a -&gt; a)
+-&gt; Semigroup a
+stimes :: forall b. Integral b =&gt; b -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+$cstimes :: forall b. Integral b =&gt; b -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+sconcat :: NonEmpty TextEnvelopeDescr -&gt; TextEnvelopeDescr
+$csconcat :: NonEmpty TextEnvelopeDescr -&gt; TextEnvelopeDescr
+&lt;&gt; :: TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+$c&lt;&gt; :: TextEnvelopeDescr -&gt; TextEnvelopeDescr -&gt; TextEnvelopeDescr
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Semigroup</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767602"><span id="local-6989586621680767607"><span id="local-6989586621680767612"><span id="local-6989586621680767617"><span class="annot"><span class="annottext">[TextEnvelopeDescr] -&gt; Encoding
+[TextEnvelopeDescr] -&gt; Value
+TextEnvelopeDescr -&gt; Encoding
+TextEnvelopeDescr -&gt; Value
+forall a.
+(a -&gt; Value)
+-&gt; (a -&gt; Encoding)
+-&gt; ([a] -&gt; Value)
+-&gt; ([a] -&gt; Encoding)
+-&gt; ToJSON a
+toEncodingList :: [TextEnvelopeDescr] -&gt; Encoding
+$ctoEncodingList :: [TextEnvelopeDescr] -&gt; Encoding
+toJSONList :: [TextEnvelopeDescr] -&gt; Value
+$ctoJSONList :: [TextEnvelopeDescr] -&gt; Value
+toEncoding :: TextEnvelopeDescr -&gt; Encoding
+$ctoEncoding :: TextEnvelopeDescr -&gt; Encoding
+toJSON :: TextEnvelopeDescr -&gt; Value
+$ctoJSON :: TextEnvelopeDescr -&gt; Value
+</span><a href="#local-6989586621680767602"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">ToJSON</span></a></span></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767591"><span id="local-6989586621680767596"><span class="annot"><span class="annottext">Value -&gt; Parser [TextEnvelopeDescr]
+Value -&gt; Parser TextEnvelopeDescr
+forall a.
+(Value -&gt; Parser a) -&gt; (Value -&gt; Parser [a]) -&gt; FromJSON a
+parseJSONList :: Value -&gt; Parser [TextEnvelopeDescr]
+$cparseJSONList :: Value -&gt; Parser [TextEnvelopeDescr]
+parseJSON :: Value -&gt; Parser TextEnvelopeDescr
+$cparseJSON :: Value -&gt; Parser TextEnvelopeDescr
+</span><a href="#local-6989586621680767591"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">FromJSON</span></a></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-75"></span><span>
+</span><span id="line-76"></span><span class="hs-comment">-- | A 'TextEnvelope' is a structured envelope for serialised binary values</span><span>
+</span><span id="line-77"></span><span class="hs-comment">-- with an external format with a semi-readable textual format.</span><span>
+</span><span id="line-78"></span><span class="hs-comment">--</span><span>
+</span><span id="line-79"></span><span class="hs-comment">-- It contains a \&quot;type\&quot; field, e.g. \&quot;PublicKeyByron\&quot; or \&quot;TxSignedShelley\&quot;</span><span>
+</span><span id="line-80"></span><span class="hs-comment">-- to indicate the type of the encoded data. This is used as a sanity check</span><span>
+</span><span id="line-81"></span><span class="hs-comment">-- and to help readers.</span><span>
+</span><span id="line-82"></span><span class="hs-comment">--</span><span>
+</span><span id="line-83"></span><span class="hs-comment">-- It also contains a \&quot;title\&quot; field which is free-form, and could be used</span><span>
+</span><span id="line-84"></span><span class="hs-comment">-- to indicate the role or purpose to a reader.</span><span>
+</span><span id="line-85"></span><span class="hs-comment">--</span><span>
+</span><span id="line-86"></span><span class="hs-keyword">data</span><span> </span><span id="TextEnvelope"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-var">TextEnvelope</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="TextEnvelope"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-var">TextEnvelope</span></a></span></span><span>
+</span><span id="line-87"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="teType"><span class="annot"><span class="annottext">TextEnvelope -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teType"><span class="hs-identifier hs-var hs-var">teType</span></a></span></span><span>        </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span>
+</span><span id="line-88"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="teDescription"><span class="annot"><span class="annottext">TextEnvelope -&gt; TextEnvelopeDescr
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teDescription"><span class="hs-identifier hs-var hs-var">teDescription</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-89"></span><span>  </span><span class="hs-special">,</span><span> </span><span id="teRawCBOR"><span class="annot"><span class="annottext">TextEnvelope -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teRawCBOR"><span class="hs-identifier hs-var hs-var">teRawCBOR</span></a></span></span><span>     </span><span class="hs-glyph">::</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/bytestring-0.11.4.0/src"><span class="hs-identifier hs-type">ByteString</span></a></span><span>
+</span><span id="line-90"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680767575"><span id="local-6989586621680767581"><span class="annot"><span class="annottext">TextEnvelope -&gt; TextEnvelope -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: TextEnvelope -&gt; TextEnvelope -&gt; Bool
+$c/= :: TextEnvelope -&gt; TextEnvelope -&gt; Bool
+== :: TextEnvelope -&gt; TextEnvelope -&gt; Bool
+$c== :: TextEnvelope -&gt; TextEnvelope -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767564"><span id="local-6989586621680767566"><span id="local-6989586621680767573"><span class="annot"><span class="annottext">Int -&gt; TextEnvelope -&gt; ShowS
+[TextEnvelope] -&gt; ShowS
+TextEnvelope -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [TextEnvelope] -&gt; ShowS
+$cshowList :: [TextEnvelope] -&gt; ShowS
+show :: TextEnvelope -&gt; String
+$cshow :: TextEnvelope -&gt; String
+showsPrec :: Int -&gt; TextEnvelope -&gt; ShowS
+$cshowsPrec :: Int -&gt; TextEnvelope -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-91"></span><span>
+</span><span id="line-92"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#HasTypeProxy"><span class="hs-identifier hs-type">HasTypeProxy</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-93"></span><span>    </span><span class="hs-keyword">data</span><span> </span><span id="AsType"><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#AsType"><span class="hs-identifier hs-var">AsType</span></a></span></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AsTextEnvelope"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#AsTextEnvelope"><span class="hs-identifier hs-var">AsTextEnvelope</span></a></span></span><span>
+</span><span id="line-94"></span><span>    </span><span id="local-6989586621680767557"><span class="annot"><span class="annottext">proxyToAsType :: Proxy TextEnvelope -&gt; AsType TextEnvelope
+</span><a href="Cardano.Api.HasTypeProxy.html#proxyToAsType"><span class="hs-identifier hs-var hs-var hs-var hs-var">proxyToAsType</span></a></span></span><span> </span><span class="annot"><span class="annottext">Proxy TextEnvelope
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">AsType TextEnvelope
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#AsTextEnvelope"><span class="hs-identifier hs-var">AsTextEnvelope</span></a></span><span>
+</span><span id="line-95"></span><span>
+</span><span id="line-96"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680767549"><span id="local-6989586621680767551"><span id="local-6989586621680767553"><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-type">ToJSON</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span></span></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-97"></span><span>  </span><span id="local-6989586621680767534"><span class="annot"><span class="annottext">toJSON :: TextEnvelope -&gt; Value
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">toJSON</span></a></span></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span> </span><span class="hs-special">{</span><span id="local-6989586621680767532"><span class="annot"><span class="annottext">TextEnvelopeType
+teType :: TextEnvelopeType
+teType :: TextEnvelope -&gt; TextEnvelopeType
+</span><a href="#local-6989586621680767532"><span class="hs-identifier hs-var hs-var">teType</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767531"><span class="annot"><span class="annottext">TextEnvelopeDescr
+teDescription :: TextEnvelopeDescr
+teDescription :: TextEnvelope -&gt; TextEnvelopeDescr
+</span><a href="#local-6989586621680767531"><span class="hs-identifier hs-var hs-var">teDescription</span></a></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767530"><span class="annot"><span class="annottext">ByteString
+teRawCBOR :: ByteString
+teRawCBOR :: TextEnvelope -&gt; ByteString
+</span><a href="#local-6989586621680767530"><span class="hs-identifier hs-var hs-var">teRawCBOR</span></a></span></span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-98"></span><span>    </span><span class="annot"><span class="annottext">[Pair] -&gt; Value
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var">object</span></a></span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;type&quot;</span></span><span>        </span><span class="annot"><span class="annottext">forall kv v. (KeyValue kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767532"><span class="hs-identifier hs-var">teType</span></a></span><span>
+</span><span id="line-99"></span><span>           </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;description&quot;</span></span><span> </span><span class="annot"><span class="annottext">forall kv v. (KeyValue kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><a href="#local-6989586621680767531"><span class="hs-identifier hs-var">teDescription</span></a></span><span>
+</span><span id="line-100"></span><span>           </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;cborHex&quot;</span></span><span>     </span><span class="annot"><span class="annottext">forall kv v. (KeyValue kv, ToJSON v) =&gt; Key -&gt; v -&gt; kv
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator hs-var">.=</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Text
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.0.2-c7eb3c57f6453e3c5272766702090d9a6756165468e4b3572f5b63769867b99a/share/doc/html/src"><span class="hs-identifier hs-var">Text.decodeUtf8</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">ByteString -&gt; ByteString
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/base16-bytestring-1.0.2.0-6f5a6fc7d30ba5c6cb58925bf734cb399a0439042618a9aeb7724687c577350d/share/doc/html/src"><span class="hs-identifier hs-var">Base16.encode</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621680767530"><span class="hs-identifier hs-var">teRawCBOR</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-101"></span><span>           </span><span class="hs-special">]</span><span>
+</span><span id="line-102"></span><span>
+</span><span id="line-103"></span><span class="hs-keyword">instance</span><span> </span><span id="local-6989586621680767525"><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-type">FromJSON</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-104"></span><span>  </span><span id="local-6989586621680767510"><span class="annot"><span class="annottext">parseJSON :: Value -&gt; Parser TextEnvelope
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var hs-var hs-var hs-var">parseJSON</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. String -&gt; (Object -&gt; Parser a) -&gt; Value -&gt; Parser a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var">withObject</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;TextEnvelope&quot;</span></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-glyph">\</span><span id="local-6989586621680767508"><span class="annot"><span class="annottext">Object
+</span><a href="#local-6989586621680767508"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-105"></span><span>                </span><span class="annot"><span class="annottext">TextEnvelopeType -&gt; TextEnvelopeDescr -&gt; ByteString -&gt; TextEnvelope
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-var">TextEnvelope</span></a></span><span> </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Object
+</span><a href="#local-6989586621680767508"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. FromJSON a =&gt; Object -&gt; Key -&gt; Parser a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator hs-var">.:</span></a></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;type&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-106"></span><span>                             </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Object
+</span><a href="#local-6989586621680767508"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. FromJSON a =&gt; Object -&gt; Key -&gt; Parser a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator hs-var">.:</span></a></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;description&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-107"></span><span>                             </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a b. Applicative f =&gt; f (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;*&gt;</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">Value -&gt; Parser ByteString
+</span><a href="#local-6989586621680767506"><span class="hs-identifier hs-var">parseJSONBase16</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) a b. Monad m =&gt; (a -&gt; m b) -&gt; m a -&gt; m b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">=&lt;&lt;</span></a></span><span> </span><span class="annot"><span class="annottext">Object
+</span><a href="#local-6989586621680767508"><span class="hs-identifier hs-var">v</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. FromJSON a =&gt; Object -&gt; Key -&gt; Parser a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-operator hs-var">.:</span></a></span><span> </span><span class="annot"><span class="annottext">Key
+</span><span class="hs-string">&quot;cborHex&quot;</span></span><span class="hs-special">)</span><span>
+</span><span id="line-108"></span><span>    </span><span class="hs-keyword">where</span><span>
+</span><span id="line-109"></span><span>      </span><span id="local-6989586621680767506"><span class="annot"><span class="annottext">parseJSONBase16 :: Value -&gt; Parser ByteString
+</span><a href="#local-6989586621680767506"><span class="hs-identifier hs-var hs-var">parseJSONBase16</span></a></span></span><span> </span><span id="local-6989586621680767498"><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621680767498"><span class="hs-identifier hs-var">v</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-110"></span><span>        </span><span class="annot"><span class="annottext">forall a c b. (a -&gt; c) -&gt; (b -&gt; c) -&gt; Either a b -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">either</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) a. MonadFail m =&gt; String -&gt; m a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">fail</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString -&gt; Either String ByteString
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/base16-bytestring-1.0.2.0-6f5a6fc7d30ba5c6cb58925bf734cb399a0439042618a9aeb7724687c577350d/share/doc/html/src"><span class="hs-identifier hs-var">Base16.decode</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">Text -&gt; ByteString
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.0.2-c7eb3c57f6453e3c5272766702090d9a6756165468e4b3572f5b63769867b99a/share/doc/html/src"><span class="hs-identifier hs-var">Text.encodeUtf8</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) a b. Monad m =&gt; (a -&gt; m b) -&gt; m a -&gt; m b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">=&lt;&lt;</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. FromJSON a =&gt; Value -&gt; Parser a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var">parseJSON</span></a></span><span> </span><span class="annot"><span class="annottext">Value
+</span><a href="#local-6989586621680767498"><span class="hs-identifier hs-var">v</span></a></span><span>
+</span><span id="line-111"></span><span>
+</span><span id="line-112"></span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeJSONConfig"><span class="hs-identifier hs-type">textEnvelopeJSONConfig</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier hs-type">Config</span></a></span><span>
+</span><span id="line-113"></span><span id="textEnvelopeJSONConfig"><span class="annot"><span class="annottext">textEnvelopeJSONConfig :: Config
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeJSONConfig"><span class="hs-identifier hs-var hs-var">textEnvelopeJSONConfig</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Config
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier hs-var">defConfig</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">confCompare :: Text -&gt; Text -&gt; Ordering
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier hs-var">confCompare</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">Text -&gt; Text -&gt; Ordering
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeJSONKeyOrder"><span class="hs-identifier hs-var">textEnvelopeJSONKeyOrder</span></a></span><span> </span><span class="hs-special">}</span><span>
+</span><span id="line-114"></span><span>
+</span><span id="line-115"></span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeJSONKeyOrder"><span class="hs-identifier hs-type">textEnvelopeJSONKeyOrder</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.0.2-c7eb3c57f6453e3c5272766702090d9a6756165468e4b3572f5b63769867b99a/share/doc/html/src"><span class="hs-identifier hs-type">Text</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/text-2.0.2-c7eb3c57f6453e3c5272766702090d9a6756165468e4b3572f5b63769867b99a/share/doc/html/src"><span class="hs-identifier hs-type">Text</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">Ordering</span></a></span><span>
+</span><span id="line-116"></span><span id="textEnvelopeJSONKeyOrder"><span class="annot"><span class="annottext">textEnvelopeJSONKeyOrder :: Text -&gt; Text -&gt; Ordering
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeJSONKeyOrder"><span class="hs-identifier hs-var hs-var">textEnvelopeJSONKeyOrder</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">[Text] -&gt; Text -&gt; Text -&gt; Ordering
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier hs-var">keyOrder</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;type&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;description&quot;</span></span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">Text
+</span><span class="hs-string">&quot;cborHex&quot;</span></span><span class="hs-special">]</span><span>
+</span><span id="line-117"></span><span>
+</span><span id="line-118"></span><span>
+</span><span id="line-119"></span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeRawCBOR"><span class="hs-identifier hs-type">textEnvelopeRawCBOR</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/bytestring-0.11.4.0/src"><span class="hs-identifier hs-type">ByteString</span></a></span><span>
+</span><span id="line-120"></span><span id="textEnvelopeRawCBOR"><span class="annot"><span class="annottext">textEnvelopeRawCBOR :: TextEnvelope -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeRawCBOR"><span class="hs-identifier hs-var hs-var">textEnvelopeRawCBOR</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelope -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teRawCBOR"><span class="hs-identifier hs-var">teRawCBOR</span></a></span><span>
+</span><span id="line-121"></span><span>
+</span><span id="line-122"></span><span>
+</span><span id="line-123"></span><span class="hs-comment">-- | The errors that the pure 'TextEnvelope' parsing\/decoding functions can return.</span><span>
+</span><span id="line-124"></span><span class="hs-comment">--</span><span>
+</span><span id="line-125"></span><span class="hs-keyword">data</span><span> </span><span id="TextEnvelopeError"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-var">TextEnvelopeError</span></a></span></span><span>
+</span><span id="line-126"></span><span>  </span><span class="hs-glyph">=</span><span> </span><span id="TextEnvelopeTypeError"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeTypeError"><span class="hs-identifier hs-var">TextEnvelopeTypeError</span></a></span></span><span>   </span><span class="hs-glyph">!</span><span class="hs-special">[</span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span class="hs-special">]</span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span> </span><span class="hs-comment">-- ^ expected, actual</span><span>
+</span><span id="line-127"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TextEnvelopeDecodeError"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDecodeError"><span class="hs-identifier hs-var">TextEnvelopeDecodeError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-binary-1.7.0.1-0c345eec6449f7d784644477ca59f64ca73d502290b831a2f1de8681b94ead87/share/doc/html/src"><span class="hs-identifier hs-type">DecoderError</span></a></span><span>
+</span><span id="line-128"></span><span>  </span><span class="hs-glyph">|</span><span> </span><span id="TextEnvelopeAesonDecodeError"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeAesonDecodeError"><span class="hs-identifier hs-var">TextEnvelopeAesonDecodeError</span></a></span></span><span> </span><span class="hs-glyph">!</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">String</span></a></span><span>
+</span><span id="line-129"></span><span>  </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680767478"><span id="local-6989586621680767486"><span class="annot"><span class="annottext">TextEnvelopeError -&gt; TextEnvelopeError -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: TextEnvelopeError -&gt; TextEnvelopeError -&gt; Bool
+$c/= :: TextEnvelopeError -&gt; TextEnvelopeError -&gt; Bool
+== :: TextEnvelopeError -&gt; TextEnvelopeError -&gt; Bool
+$c== :: TextEnvelopeError -&gt; TextEnvelopeError -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767462"><span id="local-6989586621680767464"><span id="local-6989586621680767476"><span class="annot"><span class="annottext">Int -&gt; TextEnvelopeError -&gt; ShowS
+[TextEnvelopeError] -&gt; ShowS
+TextEnvelopeError -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [TextEnvelopeError] -&gt; ShowS
+$cshowList :: [TextEnvelopeError] -&gt; ShowS
+show :: TextEnvelopeError -&gt; String
+$cshow :: TextEnvelopeError -&gt; String
+showsPrec :: Int -&gt; TextEnvelopeError -&gt; ShowS
+$cshowsPrec :: Int -&gt; TextEnvelopeError -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680767421"><span id="local-6989586621680767423"><span id="local-6989586621680767425"><span id="local-6989586621680767427"><span id="local-6989586621680767429"><span id="local-6989586621680767431"><span id="local-6989586621680767433"><span id="local-6989586621680767435"><span id="local-6989586621680767437"><span id="local-6989586621680767439"><span id="local-6989586621680767441"><span id="local-6989586621680767443"><span id="local-6989586621680767450"><span id="local-6989586621680767458"><span class="annot"><span class="annottext">Typeable TextEnvelopeError
+TextEnvelopeError -&gt; DataType
+TextEnvelopeError -&gt; Constr
+(forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeError -&gt; TextEnvelopeError
+forall a.
+Typeable a
+-&gt; (forall (c :: * -&gt; *).
+    (forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+    -&gt; (forall g. g -&gt; c g) -&gt; a -&gt; c a)
+-&gt; (forall (c :: * -&gt; *).
+    (forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+    -&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c a)
+-&gt; (a -&gt; Constr)
+-&gt; (a -&gt; DataType)
+-&gt; (forall (t :: * -&gt; *) (c :: * -&gt; *).
+    Typeable t =&gt;
+    (forall d. Data d =&gt; c (t d)) -&gt; Maybe (c a))
+-&gt; (forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+    Typeable t =&gt;
+    (forall d e. (Data d, Data e) =&gt; c (t d e)) -&gt; Maybe (c a))
+-&gt; ((forall b. Data b =&gt; b -&gt; b) -&gt; a -&gt; a)
+-&gt; (forall r r'.
+    (r -&gt; r' -&gt; r) -&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; a -&gt; r)
+-&gt; (forall r r'.
+    (r' -&gt; r -&gt; r) -&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; a -&gt; r)
+-&gt; (forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; a -&gt; [u])
+-&gt; (forall u. Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; a -&gt; u)
+-&gt; (forall (m :: * -&gt; *).
+    Monad m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; (forall (m :: * -&gt; *).
+    MonadPlus m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; (forall (m :: * -&gt; *).
+    MonadPlus m =&gt;
+    (forall d. Data d =&gt; d -&gt; m d) -&gt; a -&gt; m a)
+-&gt; Data a
+forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeError -&gt; u
+forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeError -&gt; [u]
+forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeError -&gt; r
+forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeError -&gt; r
+forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeError
+forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeError -&gt; c TextEnvelopeError
+forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeError)
+forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeError)
+gmapMo :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+$cgmapMo :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+gmapMp :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+$cgmapMp :: forall (m :: * -&gt; *).
+MonadPlus m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+gmapM :: forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+$cgmapM :: forall (m :: * -&gt; *).
+Monad m =&gt;
+(forall d. Data d =&gt; d -&gt; m d)
+-&gt; TextEnvelopeError -&gt; m TextEnvelopeError
+gmapQi :: forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeError -&gt; u
+$cgmapQi :: forall u.
+Int -&gt; (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeError -&gt; u
+gmapQ :: forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeError -&gt; [u]
+$cgmapQ :: forall u. (forall d. Data d =&gt; d -&gt; u) -&gt; TextEnvelopeError -&gt; [u]
+gmapQr :: forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeError -&gt; r
+$cgmapQr :: forall r r'.
+(r' -&gt; r -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeError -&gt; r
+gmapQl :: forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeError -&gt; r
+$cgmapQl :: forall r r'.
+(r -&gt; r' -&gt; r)
+-&gt; r -&gt; (forall d. Data d =&gt; d -&gt; r') -&gt; TextEnvelopeError -&gt; r
+gmapT :: (forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeError -&gt; TextEnvelopeError
+$cgmapT :: (forall b. Data b =&gt; b -&gt; b)
+-&gt; TextEnvelopeError -&gt; TextEnvelopeError
+dataCast2 :: forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeError)
+$cdataCast2 :: forall (t :: * -&gt; * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d e. (Data d, Data e) =&gt; c (t d e))
+-&gt; Maybe (c TextEnvelopeError)
+dataCast1 :: forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeError)
+$cdataCast1 :: forall (t :: * -&gt; *) (c :: * -&gt; *).
+Typeable t =&gt;
+(forall d. Data d =&gt; c (t d)) -&gt; Maybe (c TextEnvelopeError)
+dataTypeOf :: TextEnvelopeError -&gt; DataType
+$cdataTypeOf :: TextEnvelopeError -&gt; DataType
+toConstr :: TextEnvelopeError -&gt; Constr
+$ctoConstr :: TextEnvelopeError -&gt; Constr
+gunfold :: forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeError
+$cgunfold :: forall (c :: * -&gt; *).
+(forall b r. Data b =&gt; c (b -&gt; r) -&gt; c r)
+-&gt; (forall r. r -&gt; c r) -&gt; Constr -&gt; c TextEnvelopeError
+gfoldl :: forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeError -&gt; c TextEnvelopeError
+$cgfoldl :: forall (c :: * -&gt; *).
+(forall d b. Data d =&gt; c (d -&gt; b) -&gt; d -&gt; c b)
+-&gt; (forall g. g -&gt; c g) -&gt; TextEnvelopeError -&gt; c TextEnvelopeError
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Data</span></a></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-130"></span><span>
+</span><span id="line-131"></span><span class="hs-keyword">instance</span><span> </span><span class="annot"><a href="Cardano.Api.Error.html#Error"><span class="hs-identifier hs-type">Error</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-132"></span><span>  </span><span id="local-6989586621680767394"><span class="annot"><span class="annottext">displayError :: TextEnvelopeError -&gt; String
+</span><a href="Cardano.Api.Error.html#displayError"><span class="hs-identifier hs-var hs-var hs-var hs-var">displayError</span></a></span></span><span> </span><span id="local-6989586621680767392"><span class="annot"><span class="annottext">TextEnvelopeError
+</span><a href="#local-6989586621680767392"><span class="hs-identifier hs-var">tee</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-133"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeError
+</span><a href="#local-6989586621680767392"><span class="hs-identifier hs-var">tee</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-134"></span><span>      </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeTypeError"><span class="hs-identifier hs-type">TextEnvelopeTypeError</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span> </span><span id="local-6989586621680767391"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767391"><span class="hs-identifier hs-var">expType</span></a></span></span><span class="hs-special">]</span><span>
+</span><span id="line-135"></span><span>                            </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span> </span><span id="local-6989586621680767390"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767390"><span class="hs-identifier hs-var">actType</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-136"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;TextEnvelope type error: &quot;</span></span><span>
+</span><span id="line-137"></span><span>       </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; Expected: &quot;</span></span><span> </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767391"><span class="hs-identifier hs-var">expType</span></a></span><span>
+</span><span id="line-138"></span><span>       </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; Actual: &quot;</span></span><span> </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767390"><span class="hs-identifier hs-var">actType</span></a></span><span>
+</span><span id="line-139"></span><span>
+</span><span id="line-140"></span><span>      </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeTypeError"><span class="hs-identifier hs-type">TextEnvelopeTypeError</span></a></span><span> </span><span id="local-6989586621680767389"><span class="annot"><span class="annottext">[TextEnvelopeType]
+</span><a href="#local-6989586621680767389"><span class="hs-identifier hs-var">expTypes</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span> </span><span id="local-6989586621680767388"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767388"><span class="hs-identifier hs-var">actType</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-141"></span><span>          </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;TextEnvelope type error: &quot;</span></span><span>
+</span><span id="line-142"></span><span>       </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; Expected one of: &quot;</span></span><span>
+</span><span id="line-143"></span><span>       </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. [a] -&gt; [[a]] -&gt; [a]
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">List.intercalate</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;, &quot;</span></span><span>
+</span><span id="line-144"></span><span>            </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767386"><span class="hs-identifier hs-var">expType</span></a></span><span> </span><span class="hs-glyph">|</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span> </span><span id="local-6989586621680767386"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767386"><span class="hs-identifier hs-var">expType</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[TextEnvelopeType]
+</span><a href="#local-6989586621680767389"><span class="hs-identifier hs-var">expTypes</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-145"></span><span>       </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot; Actual: &quot;</span></span><span> </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767388"><span class="hs-identifier hs-var">actType</span></a></span><span>
+</span><span id="line-146"></span><span>      </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeAesonDecodeError"><span class="hs-identifier hs-type">TextEnvelopeAesonDecodeError</span></a></span><span> </span><span id="local-6989586621680767385"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767385"><span class="hs-identifier hs-var">decErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;TextEnvelope aeson decode error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767385"><span class="hs-identifier hs-var">decErr</span></a></span><span>
+</span><span id="line-147"></span><span>      </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDecodeError"><span class="hs-identifier hs-type">TextEnvelopeDecodeError</span></a></span><span> </span><span id="local-6989586621680767384"><span class="annot"><span class="annottext">DecoderError
+</span><a href="#local-6989586621680767384"><span class="hs-identifier hs-var">decErr</span></a></span></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><span class="annottext">String
+</span><span class="hs-string">&quot;TextEnvelope decode error: &quot;</span></span><span> </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Show a =&gt; a -&gt; String
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">show</span></a></span><span> </span><span class="annot"><span class="annottext">DecoderError
+</span><a href="#local-6989586621680767384"><span class="hs-identifier hs-var">decErr</span></a></span><span>
+</span><span id="line-148"></span><span>
+</span><span id="line-149"></span><span>
+</span><span id="line-150"></span><span class="hs-comment">-- | Check that the \&quot;type\&quot; of the 'TextEnvelope' is as expected.</span><span>
+</span><span id="line-151"></span><span class="hs-comment">--</span><span>
+</span><span id="line-152"></span><span class="hs-comment">-- For example, one might check that the type is \&quot;TxSignedShelley\&quot;.</span><span>
+</span><span id="line-153"></span><span class="hs-comment">--</span><span>
+</span><span id="line-154"></span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#expectTextEnvelopeOfType"><span class="hs-identifier hs-type">expectTextEnvelopeOfType</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-155"></span><span id="expectTextEnvelopeOfType"><span class="annot"><span class="annottext">expectTextEnvelopeOfType :: TextEnvelopeType -&gt; TextEnvelope -&gt; Either TextEnvelopeError ()
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#expectTextEnvelopeOfType"><span class="hs-identifier hs-var hs-var">expectTextEnvelopeOfType</span></a></span></span><span> </span><span id="local-6989586621680767381"><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767381"><span class="hs-identifier hs-var">expectedType</span></a></span></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span> </span><span class="hs-special">{</span><span> </span><span class="annot"><span class="annottext">teType :: TextEnvelope -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teType"><span class="hs-identifier hs-var">teType</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="local-6989586621680767380"><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767380"><span class="hs-identifier hs-var">actualType</span></a></span></span><span> </span><span class="hs-special">}</span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-156"></span><span>    </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *). Applicative f =&gt; Bool -&gt; f () -&gt; f ()
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">unless</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767381"><span class="hs-identifier hs-var">expectedType</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-operator hs-var">==</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767380"><span class="hs-identifier hs-var">actualType</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-157"></span><span>      </span><span class="annot"><span class="annottext">forall a b. a -&gt; Either a b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Left</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[TextEnvelopeType] -&gt; TextEnvelopeType -&gt; TextEnvelopeError
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeTypeError"><span class="hs-identifier hs-var">TextEnvelopeTypeError</span></a></span><span> </span><span class="hs-special">[</span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767381"><span class="hs-identifier hs-var">expectedType</span></a></span><span class="hs-special">]</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767380"><span class="hs-identifier hs-var">actualType</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-158"></span><span>
+</span><span id="line-159"></span><span>
+</span><span id="line-160"></span><span class="hs-comment">-- ----------------------------------------------------------------------------</span><span>
+</span><span id="line-161"></span><span class="hs-comment">-- Serialisation in text envelope format</span><span>
+</span><span id="line-162"></span><span class="hs-comment">--</span><span>
+</span><span id="line-163"></span><span>
+</span><span id="line-164"></span><span class="hs-keyword">class</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseCBOR.html#SerialiseAsCBOR"><span class="hs-identifier hs-type">SerialiseAsCBOR</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768106"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span> </span><span id="HasTextEnvelope"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-var">HasTextEnvelope</span></a></span></span><span> </span><span id="local-6989586621680768106"><span class="annot"><a href="#local-6989586621680768106"><span class="hs-identifier hs-type">a</span></a></span></span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-165"></span><span>    </span><span id="textEnvelopeType"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeType"><span class="hs-identifier hs-type">textEnvelopeType</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#AsType"><span class="hs-identifier hs-type">AsType</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768106"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span>
+</span><span id="line-166"></span><span>
+</span><span id="line-167"></span><span>    </span><span id="textEnvelopeDefaultDescr"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeDefaultDescr"><span class="hs-identifier hs-type">textEnvelopeDefaultDescr</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="#local-6989586621680768106"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-168"></span><span>    </span><span id="local-6989586621680767375"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeDefaultDescr"><span class="hs-identifier hs-var hs-var">textEnvelopeDefaultDescr</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeDescr
+</span><span class="hs-string">&quot;&quot;</span></span></span><span>
+</span><span id="line-169"></span><span>
+</span><span id="line-170"></span><span id="local-6989586621680768102"><span id="local-6989586621680768103"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeTypeInEra"><span class="hs-identifier hs-type">textEnvelopeTypeInEra</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span>
+</span><span id="line-171"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621680768103"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768102"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-172"></span><span>  </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.Eras.Core.html#CardanoEra"><span class="hs-identifier hs-type">CardanoEra</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768102"><span class="hs-identifier hs-type">era</span></a></span><span>
+</span><span id="line-173"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#AsType"><span class="hs-identifier hs-type">AsType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="#local-6989586621680768103"><span class="hs-identifier hs-type">f</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768102"><span class="hs-identifier hs-type">era</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-174"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span></span></span><span>
+</span><span id="line-175"></span><span id="textEnvelopeTypeInEra"><span class="annot"><span class="annottext">textEnvelopeTypeInEra :: forall (f :: * -&gt; *) era.
+HasTextEnvelope (f era) =&gt;
+CardanoEra era -&gt; AsType (f era) -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeTypeInEra"><span class="hs-identifier hs-var hs-var">textEnvelopeTypeInEra</span></a></span></span><span> </span><span class="annot"><span class="annottext">CardanoEra era
+</span><span class="hs-identifier">_</span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-176"></span><span>  </span><span class="annot"><span class="annottext">forall a. HasTextEnvelope a =&gt; AsType a -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeType"><span class="hs-identifier hs-var">textEnvelopeType</span></a></span><span>
+</span><span id="line-177"></span><span>
+</span><span id="line-178"></span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#serialiseToTextEnvelope"><span class="hs-identifier hs-type">serialiseToTextEnvelope</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-keyword">forall</span><span> </span><span id="local-6989586621680768098"><span class="annot"><a href="#local-6989586621680768098"><span class="hs-identifier hs-type">a</span></a></span></span><span class="hs-operator">.</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768098"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-179"></span><span>                        </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680768098"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span>
+</span><span id="line-180"></span><span id="serialiseToTextEnvelope"><span class="annot"><span class="annottext">serialiseToTextEnvelope :: forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; TextEnvelope
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#serialiseToTextEnvelope"><span class="hs-identifier hs-var hs-var">serialiseToTextEnvelope</span></a></span></span><span> </span><span id="local-6989586621680767363"><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr
+</span><a href="#local-6989586621680767363"><span class="hs-identifier hs-var">mbDescr</span></a></span></span><span> </span><span id="local-6989586621680767362"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621680767362"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-181"></span><span>    </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span> </span><span class="hs-special">{</span><span>
+</span><span id="line-182"></span><span>      </span><span class="annot"><span class="annottext">teType :: TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teType"><span class="hs-identifier hs-var">teType</span></a></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. HasTextEnvelope a =&gt; AsType a -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeType"><span class="hs-identifier hs-var">textEnvelopeType</span></a></span><span> </span><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767361"><span class="hs-identifier hs-var">ttoken</span></a></span><span>
+</span><span id="line-183"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">teDescription :: TextEnvelopeDescr
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teDescription"><span class="hs-identifier hs-var">teDescription</span></a></span><span>   </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. a -&gt; Maybe a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">fromMaybe</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall a. HasTextEnvelope a =&gt; a -&gt; TextEnvelopeDescr
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeDefaultDescr"><span class="hs-identifier hs-var">textEnvelopeDefaultDescr</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621680767362"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr
+</span><a href="#local-6989586621680767363"><span class="hs-identifier hs-var">mbDescr</span></a></span><span>
+</span><span id="line-184"></span><span>    </span><span class="hs-special">,</span><span> </span><span class="annot"><span class="annottext">teRawCBOR :: ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teRawCBOR"><span class="hs-identifier hs-var">teRawCBOR</span></a></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall a. SerialiseAsCBOR a =&gt; a -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseCBOR.html#serialiseToCBOR"><span class="hs-identifier hs-var">serialiseToCBOR</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621680767362"><span class="hs-identifier hs-var">a</span></a></span><span>
+</span><span id="line-185"></span><span>    </span><span class="hs-special">}</span><span>
+</span><span id="line-186"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-187"></span><span>    </span><span class="annot"><a href="#local-6989586621680767361"><span class="hs-identifier hs-type">ttoken</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#AsType"><span class="hs-identifier hs-type">AsType</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768098"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-188"></span><span>    </span><span id="local-6989586621680767361"><span class="annot"><span class="annottext">ttoken :: AsType a
+</span><a href="#local-6989586621680767361"><span class="hs-identifier hs-var hs-var">ttoken</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">forall t. HasTypeProxy t =&gt; Proxy t -&gt; AsType t
+</span><a href="Cardano.Api.HasTypeProxy.html#proxyToAsType"><span class="hs-identifier hs-var">proxyToAsType</span></a></span><span> </span><span class="annot"><span class="annottext">forall {k} (t :: k). Proxy t
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Proxy</span></a></span><span>
+</span><span id="line-189"></span><span>
+</span><span id="line-190"></span><span>
+</span><span id="line-191"></span><span id="local-6989586621680768092"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelope"><span class="hs-identifier hs-type">deserialiseFromTextEnvelope</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768092"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-192"></span><span>                            </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#AsType"><span class="hs-identifier hs-type">AsType</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768092"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-193"></span><span>                            </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span>
+</span><span id="line-194"></span><span>                            </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768092"><span class="hs-identifier hs-type">a</span></a></span></span><span>
+</span><span id="line-195"></span><span id="deserialiseFromTextEnvelope"><span class="annot"><span class="annottext">deserialiseFromTextEnvelope :: forall a.
+HasTextEnvelope a =&gt;
+AsType a -&gt; TextEnvelope -&gt; Either TextEnvelopeError a
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelope"><span class="hs-identifier hs-var hs-var">deserialiseFromTextEnvelope</span></a></span></span><span> </span><span id="local-6989586621680767350"><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767350"><span class="hs-identifier hs-var">ttoken</span></a></span></span><span> </span><span id="local-6989586621680767349"><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767349"><span class="hs-identifier hs-var">te</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-196"></span><span>    </span><span class="annot"><span class="annottext">TextEnvelopeType -&gt; TextEnvelope -&gt; Either TextEnvelopeError ()
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#expectTextEnvelopeOfType"><span class="hs-identifier hs-var">expectTextEnvelopeOfType</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall a. HasTextEnvelope a =&gt; AsType a -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeType"><span class="hs-identifier hs-var">textEnvelopeType</span></a></span><span> </span><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767350"><span class="hs-identifier hs-var">ttoken</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767349"><span class="hs-identifier hs-var">te</span></a></span><span>
+</span><span id="line-197"></span><span>    </span><span class="annot"><span class="annottext">forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="annot"><span class="annottext">DecoderError -&gt; TextEnvelopeError
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDecodeError"><span class="hs-identifier hs-var">TextEnvelopeDecodeError</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-198"></span><span>      </span><span class="annot"><span class="annottext">forall a.
+SerialiseAsCBOR a =&gt;
+AsType a -&gt; ByteString -&gt; Either DecoderError a
+</span><a href="Cardano.Api.SerialiseCBOR.html#deserialiseFromCBOR"><span class="hs-identifier hs-var">deserialiseFromCBOR</span></a></span><span> </span><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767350"><span class="hs-identifier hs-var">ttoken</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelope -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teRawCBOR"><span class="hs-identifier hs-var">teRawCBOR</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767349"><span class="hs-identifier hs-var">te</span></a></span><span class="hs-special">)</span><span> </span><span class="hs-comment">--TODO: You have switched from CBOR to JSON</span><span>
+</span><span id="line-199"></span><span>
+</span><span id="line-200"></span><span>
+</span><span id="line-201"></span><span id="local-6989586621680768084"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelopeAnyOf"><span class="hs-identifier hs-type">deserialiseFromTextEnvelopeAnyOf</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#FromSomeType"><span class="hs-identifier hs-type">FromSomeType</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768084"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-202"></span><span>                                 </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span>
+</span><span id="line-203"></span><span>                                 </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768084"><span class="hs-identifier hs-type">b</span></a></span></span><span>
+</span><span id="line-204"></span><span id="deserialiseFromTextEnvelopeAnyOf"><span class="annot"><span class="annottext">deserialiseFromTextEnvelopeAnyOf :: forall b.
+[FromSomeType HasTextEnvelope b]
+-&gt; TextEnvelope -&gt; Either TextEnvelopeError b
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelopeAnyOf"><span class="hs-identifier hs-var hs-var">deserialiseFromTextEnvelopeAnyOf</span></a></span></span><span> </span><span id="local-6989586621680767345"><span class="annot"><span class="annottext">[FromSomeType HasTextEnvelope b]
+</span><a href="#local-6989586621680767345"><span class="hs-identifier hs-var">types</span></a></span></span><span> </span><span id="local-6989586621680767344"><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767344"><span class="hs-identifier hs-var">te</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-205"></span><span>    </span><span class="hs-keyword">case</span><span> </span><span class="annot"><span class="annottext">forall (t :: * -&gt; *) a. Foldable t =&gt; (a -&gt; Bool) -&gt; t a -&gt; Maybe a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">List.find</span></a></span><span> </span><span class="annot"><span class="annottext">FromSomeType HasTextEnvelope b -&gt; Bool
+</span><a href="#local-6989586621680767342"><span class="hs-identifier hs-var">matching</span></a></span><span> </span><span class="annot"><span class="annottext">[FromSomeType HasTextEnvelope b]
+</span><a href="#local-6989586621680767345"><span class="hs-identifier hs-var">types</span></a></span><span> </span><span class="hs-keyword">of</span><span>
+</span><span id="line-206"></span><span>      </span><span class="annot"><span class="annottext">Maybe (FromSomeType HasTextEnvelope b)
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Nothing</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-207"></span><span>        </span><span class="annot"><span class="annottext">forall a b. a -&gt; Either a b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">Left</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">[TextEnvelopeType] -&gt; TextEnvelopeType -&gt; TextEnvelopeError
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeTypeError"><span class="hs-identifier hs-var">TextEnvelopeTypeError</span></a></span><span> </span><span class="annot"><span class="annottext">[TextEnvelopeType]
+</span><a href="#local-6989586621680767341"><span class="hs-identifier hs-var">expectedTypes</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767340"><span class="hs-identifier hs-var">actualType</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-208"></span><span>
+</span><span id="line-209"></span><span>      </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Just</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#FromSomeType"><span class="hs-identifier hs-type">FromSomeType</span></a></span><span> </span><span id="local-6989586621680767332"><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767332"><span class="hs-identifier hs-var">ttoken</span></a></span></span><span> </span><span id="local-6989586621680767331"><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621680767331"><span class="hs-identifier hs-var">f</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">-&gt;</span><span>
+</span><span id="line-210"></span><span>        </span><span class="annot"><span class="annottext">forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="annot"><span class="annottext">DecoderError -&gt; TextEnvelopeError
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDecodeError"><span class="hs-identifier hs-var">TextEnvelopeDecodeError</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-211"></span><span>          </span><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621680767331"><span class="hs-identifier hs-var">f</span></a></span><span> </span><span class="annot"><span class="annottext">forall (f :: * -&gt; *) a b. Functor f =&gt; (a -&gt; b) -&gt; f a -&gt; f b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;$&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">forall a.
+SerialiseAsCBOR a =&gt;
+AsType a -&gt; ByteString -&gt; Either DecoderError a
+</span><a href="Cardano.Api.SerialiseCBOR.html#deserialiseFromCBOR"><span class="hs-identifier hs-var">deserialiseFromCBOR</span></a></span><span> </span><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767332"><span class="hs-identifier hs-var">ttoken</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">TextEnvelope -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teRawCBOR"><span class="hs-identifier hs-var">teRawCBOR</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767344"><span class="hs-identifier hs-var">te</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-212"></span><span>  </span><span class="hs-keyword">where</span><span>
+</span><span id="line-213"></span><span>    </span><span id="local-6989586621680767340"><span class="annot"><span class="annottext">actualType :: TextEnvelopeType
+</span><a href="#local-6989586621680767340"><span class="hs-identifier hs-var hs-var">actualType</span></a></span></span><span>    </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelope -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#teType"><span class="hs-identifier hs-var">teType</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767344"><span class="hs-identifier hs-var">te</span></a></span><span>
+</span><span id="line-214"></span><span>    </span><span id="local-6989586621680767341"><span class="annot"><span class="annottext">expectedTypes :: [TextEnvelopeType]
+</span><a href="#local-6989586621680767341"><span class="hs-identifier hs-var hs-var">expectedTypes</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span class="hs-special">[</span><span> </span><span class="annot"><span class="annottext">forall a. HasTextEnvelope a =&gt; AsType a -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeType"><span class="hs-identifier hs-var">textEnvelopeType</span></a></span><span> </span><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767329"><span class="hs-identifier hs-var">ttoken</span></a></span><span>
+</span><span id="line-215"></span><span>                    </span><span class="hs-glyph">|</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#FromSomeType"><span class="hs-identifier hs-type">FromSomeType</span></a></span><span> </span><span id="local-6989586621680767329"><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767329"><span class="hs-identifier hs-var">ttoken</span></a></span></span><span> </span><span id="local-6989586621680767327"><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621680767327"><span class="hs-identifier hs-var">_f</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">[FromSomeType HasTextEnvelope b]
+</span><a href="#local-6989586621680767345"><span class="hs-identifier hs-var">types</span></a></span><span> </span><span class="hs-special">]</span><span>
+</span><span id="line-216"></span><span>
+</span><span id="line-217"></span><span>    </span><span id="local-6989586621680767342"><span class="annot"><span class="annottext">matching :: FromSomeType HasTextEnvelope b -&gt; Bool
+</span><a href="#local-6989586621680767342"><span class="hs-identifier hs-var hs-var">matching</span></a></span></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#FromSomeType"><span class="hs-identifier hs-type">FromSomeType</span></a></span><span> </span><span id="local-6989586621680767323"><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767323"><span class="hs-identifier hs-var">ttoken</span></a></span></span><span> </span><span id="local-6989586621680767322"><span class="annot"><span class="annottext">a -&gt; b
+</span><a href="#local-6989586621680767322"><span class="hs-identifier hs-var">_f</span></a></span></span><span class="hs-special">)</span><span> </span><span class="hs-glyph">=</span><span> </span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767340"><span class="hs-identifier hs-var">actualType</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. Eq a =&gt; a -&gt; a -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-operator hs-var">==</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. HasTextEnvelope a =&gt; AsType a -&gt; TextEnvelopeType
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeType"><span class="hs-identifier hs-var">textEnvelopeType</span></a></span><span> </span><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767323"><span class="hs-identifier hs-var">ttoken</span></a></span><span>
+</span><span id="line-218"></span><span>
+</span><span id="line-219"></span><span id="local-6989586621680768074"><span id="local-6989586621680768075"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#writeFileTextEnvelope"><span class="hs-identifier hs-type">writeFileTextEnvelope</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768075"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-220"></span><span>                      </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768074"><span class="hs-identifier hs-type">content</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.IO.Base.html#Out"><span class="hs-identifier hs-type">Out</span></a></span><span>
+</span><span id="line-221"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span>
+</span><span id="line-222"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680768075"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-223"></span><span>                      </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="hs-special">(</span><span class="hs-special">)</span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-224"></span><span id="writeFileTextEnvelope"><span class="annot"><span class="annottext">writeFileTextEnvelope :: forall a content.
+HasTextEnvelope a =&gt;
+File content 'Out
+-&gt; Maybe TextEnvelopeDescr -&gt; a -&gt; IO (Either (FileError ()) ())
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#writeFileTextEnvelope"><span class="hs-identifier hs-var hs-var">writeFileTextEnvelope</span></a></span></span><span> </span><span id="local-6989586621680767318"><span class="annot"><span class="annottext">File content 'Out
+</span><a href="#local-6989586621680767318"><span class="hs-identifier hs-var">outputFile</span></a></span></span><span> </span><span id="local-6989586621680767317"><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr
+</span><a href="#local-6989586621680767317"><span class="hs-identifier hs-var">mbDescr</span></a></span></span><span> </span><span id="local-6989586621680767316"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621680767316"><span class="hs-identifier hs-var">a</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-225"></span><span>  </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) content e.
+MonadIO m =&gt;
+File content 'Out -&gt; ByteString -&gt; m (Either (FileError e) ())
+</span><a href="Cardano.Api.IO.html#writeLazyByteStringFile"><span class="hs-identifier hs-var">writeLazyByteStringFile</span></a></span><span> </span><span class="annot"><span class="annottext">File content 'Out
+</span><a href="#local-6989586621680767318"><span class="hs-identifier hs-var">outputFile</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier hs-var">textEnvelopeToJSON</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr
+</span><a href="#local-6989586621680767317"><span class="hs-identifier hs-var">mbDescr</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621680767316"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-226"></span><span>
+</span><span id="line-227"></span><span id="local-6989586621680768065"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier hs-type">textEnvelopeToJSON</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768065"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">=&gt;</span><span>  </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Maybe</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeDescr"><span class="hs-identifier hs-type">TextEnvelopeDescr</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="#local-6989586621680768065"><span class="hs-identifier hs-type">a</span></a></span><span> </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/bytestring-0.11.4.0/src"><span class="hs-identifier hs-type">LBS.ByteString</span></a></span></span><span>
+</span><span id="line-228"></span><span id="textEnvelopeToJSON"><span class="annot"><span class="annottext">textEnvelopeToJSON :: forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; ByteString
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeToJSON"><span class="hs-identifier hs-var hs-var">textEnvelopeToJSON</span></a></span></span><span> </span><span id="local-6989586621680767307"><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr
+</span><a href="#local-6989586621680767307"><span class="hs-identifier hs-var">mbDescr</span></a></span></span><span> </span><span id="local-6989586621680767306"><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621680767306"><span class="hs-identifier hs-var">a</span></a></span></span><span>  </span><span class="hs-glyph">=</span><span>
+</span><span id="line-229"></span><span>  </span><span class="annot"><span class="annottext">forall a. ToJSON a =&gt; Config -&gt; a -&gt; ByteString
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-pretty-0.8.10-711cd1be67af17c3d13043120aa8df9b74292469517bdb1d001de9862ef344a3/share/doc/html/src"><span class="hs-identifier hs-var">encodePretty'</span></a></span><span> </span><span class="annot"><span class="annottext">Config
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#textEnvelopeJSONConfig"><span class="hs-identifier hs-var">textEnvelopeJSONConfig</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall a.
+HasTextEnvelope a =&gt;
+Maybe TextEnvelopeDescr -&gt; a -&gt; TextEnvelope
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#serialiseToTextEnvelope"><span class="hs-identifier hs-var">serialiseToTextEnvelope</span></a></span><span> </span><span class="annot"><span class="annottext">Maybe TextEnvelopeDescr
+</span><a href="#local-6989586621680767307"><span class="hs-identifier hs-var">mbDescr</span></a></span><span> </span><span class="annot"><span class="annottext">a
+</span><a href="#local-6989586621680767306"><span class="hs-identifier hs-var">a</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">forall a. Semigroup a =&gt; a -&gt; a -&gt; a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">&lt;&gt;</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><span class="hs-string">&quot;\n&quot;</span></span><span>
+</span><span id="line-230"></span><span>
+</span><span id="line-231"></span><span id="local-6989586621680768061"><span id="local-6989586621680768062"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readFileTextEnvelope"><span class="hs-identifier hs-type">readFileTextEnvelope</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768062"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-232"></span><span>                     </span><span class="hs-glyph">=&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#AsType"><span class="hs-identifier hs-type">AsType</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768062"><span class="hs-identifier hs-type">a</span></a></span><span>
+</span><span id="line-233"></span><span>                     </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768061"><span class="hs-identifier hs-type">content</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.IO.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span>
+</span><span id="line-234"></span><span>                     </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621680768062"><span class="hs-identifier hs-type">a</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-235"></span><span id="readFileTextEnvelope"><span class="annot"><span class="annottext">readFileTextEnvelope :: forall a content.
+HasTextEnvelope a =&gt;
+AsType a
+-&gt; File content 'In -&gt; IO (Either (FileError TextEnvelopeError) a)
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#readFileTextEnvelope"><span class="hs-identifier hs-var hs-var">readFileTextEnvelope</span></a></span></span><span> </span><span id="local-6989586621680767296"><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767296"><span class="hs-identifier hs-var">ttoken</span></a></span></span><span> </span><span id="local-6989586621680767295"><span class="annot"><span class="annottext">File content 'In
+</span><a href="#local-6989586621680767295"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-236"></span><span>    </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a. ExceptT e m a -&gt; m (Either e a)
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-var">runExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-237"></span><span>      </span><span id="local-6989586621680767294"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621680767294"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) s e.
+MonadIO m =&gt;
+String -&gt; (String -&gt; IO s) -&gt; ExceptT (FileError e) m s
+</span><a href="Cardano.Api.Error.html#fileIOExceptT"><span class="hs-identifier hs-var">fileIOExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall content (direction :: FileDirection).
+File content direction -&gt; String
+</span><a href="Cardano.Api.IO.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">File content 'In
+</span><a href="#local-6989586621680767295"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
+</span><a href="Cardano.Api.Utils.html#readFileBlocking"><span class="hs-identifier hs-var">readFileBlocking</span></a></span><span>
+</span><span id="line-238"></span><span>      </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall e. String -&gt; e -&gt; FileError e
+</span><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall content (direction :: FileDirection).
+File content direction -&gt; String
+</span><a href="Cardano.Api.IO.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">File content 'In
+</span><a href="#local-6989586621680767295"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">hoistEither</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-239"></span><span>        </span><span id="local-6989586621680767290"><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767290"><span class="hs-identifier hs-var">te</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; TextEnvelopeError
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeAesonDecodeError"><span class="hs-identifier hs-var">TextEnvelopeAesonDecodeError</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. FromJSON a =&gt; ByteString -&gt; Either String a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var">Aeson.eitherDecodeStrict'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621680767294"><span class="hs-identifier hs-var">content</span></a></span><span>
+</span><span id="line-240"></span><span>        </span><span class="annot"><span class="annottext">forall a.
+HasTextEnvelope a =&gt;
+AsType a -&gt; TextEnvelope -&gt; Either TextEnvelopeError a
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelope"><span class="hs-identifier hs-var">deserialiseFromTextEnvelope</span></a></span><span> </span><span class="annot"><span class="annottext">AsType a
+</span><a href="#local-6989586621680767296"><span class="hs-identifier hs-var">ttoken</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767290"><span class="hs-identifier hs-var">te</span></a></span><span>
+</span><span id="line-241"></span><span>
+</span><span id="line-242"></span><span>
+</span><span id="line-243"></span><span id="local-6989586621680768038"><span id="local-6989586621680768039"><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readFileTextEnvelopeAnyOf"><span class="hs-identifier hs-type">readFileTextEnvelopeAnyOf</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="hs-special">[</span><span class="annot"><a href="Cardano.Api.HasTypeProxy.html#FromSomeType"><span class="hs-identifier hs-type">FromSomeType</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#HasTextEnvelope"><span class="hs-identifier hs-type">HasTextEnvelope</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768039"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">]</span><span>
+</span><span id="line-244"></span><span>                          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="Cardano.Api.IO.Base.html#File"><span class="hs-identifier hs-type">File</span></a></span><span> </span><span class="annot"><a href="#local-6989586621680768038"><span class="hs-identifier hs-type">content</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.IO.Base.html#In"><span class="hs-identifier hs-type">In</span></a></span><span>
+</span><span id="line-245"></span><span>                          </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="#local-6989586621680768039"><span class="hs-identifier hs-type">b</span></a></span><span class="hs-special">)</span></span></span><span>
+</span><span id="line-246"></span><span id="readFileTextEnvelopeAnyOf"><span class="annot"><span class="annottext">readFileTextEnvelopeAnyOf :: forall b content.
+[FromSomeType HasTextEnvelope b]
+-&gt; File content 'In -&gt; IO (Either (FileError TextEnvelopeError) b)
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#readFileTextEnvelopeAnyOf"><span class="hs-identifier hs-var hs-var">readFileTextEnvelopeAnyOf</span></a></span></span><span> </span><span id="local-6989586621680767281"><span class="annot"><span class="annottext">[FromSomeType HasTextEnvelope b]
+</span><a href="#local-6989586621680767281"><span class="hs-identifier hs-var">types</span></a></span></span><span> </span><span id="local-6989586621680767280"><span class="annot"><span class="annottext">File content 'In
+</span><a href="#local-6989586621680767280"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-247"></span><span>    </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a. ExceptT e m a -&gt; m (Either e a)
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-var">runExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-248"></span><span>      </span><span id="local-6989586621680767279"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621680767279"><span class="hs-identifier hs-var">content</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) s e.
+MonadIO m =&gt;
+String -&gt; (String -&gt; IO s) -&gt; ExceptT (FileError e) m s
+</span><a href="Cardano.Api.Error.html#fileIOExceptT"><span class="hs-identifier hs-var">fileIOExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall content (direction :: FileDirection).
+File content direction -&gt; String
+</span><a href="Cardano.Api.IO.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">File content 'In
+</span><a href="#local-6989586621680767280"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
+</span><a href="Cardano.Api.Utils.html#readFileBlocking"><span class="hs-identifier hs-var">readFileBlocking</span></a></span><span>
+</span><span id="line-249"></span><span>      </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall e. String -&gt; e -&gt; FileError e
+</span><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall content (direction :: FileDirection).
+File content direction -&gt; String
+</span><a href="Cardano.Api.IO.Base.html#unFile"><span class="hs-identifier hs-var">unFile</span></a></span><span> </span><span class="annot"><span class="annottext">File content 'In
+</span><a href="#local-6989586621680767280"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">hoistEither</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-250"></span><span>        </span><span id="local-6989586621680767278"><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767278"><span class="hs-identifier hs-var">te</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (p :: * -&gt; * -&gt; *) a b c.
+Bifunctor p =&gt;
+(a -&gt; b) -&gt; p a c -&gt; p b c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">first</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; TextEnvelopeError
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeAesonDecodeError"><span class="hs-identifier hs-var">TextEnvelopeAesonDecodeError</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. FromJSON a =&gt; ByteString -&gt; Either String a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var">Aeson.eitherDecodeStrict'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621680767279"><span class="hs-identifier hs-var">content</span></a></span><span>
+</span><span id="line-251"></span><span>        </span><span class="annot"><span class="annottext">forall b.
+[FromSomeType HasTextEnvelope b]
+-&gt; TextEnvelope -&gt; Either TextEnvelopeError b
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#deserialiseFromTextEnvelopeAnyOf"><span class="hs-identifier hs-var">deserialiseFromTextEnvelopeAnyOf</span></a></span><span> </span><span class="annot"><span class="annottext">[FromSomeType HasTextEnvelope b]
+</span><a href="#local-6989586621680767281"><span class="hs-identifier hs-var">types</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767278"><span class="hs-identifier hs-var">te</span></a></span><span>
+</span><span id="line-252"></span><span>
+</span><span id="line-253"></span><span>
+</span><span id="line-254"></span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readTextEnvelopeFromFile"><span class="hs-identifier hs-type">readTextEnvelopeFromFile</span></a></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-255"></span><span>                         </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-256"></span><span id="readTextEnvelopeFromFile"><span class="annot"><span class="annottext">readTextEnvelopeFromFile :: String -&gt; IO (Either (FileError TextEnvelopeError) TextEnvelope)
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#readTextEnvelopeFromFile"><span class="hs-identifier hs-var hs-var">readTextEnvelopeFromFile</span></a></span></span><span> </span><span id="local-6989586621680767276"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767276"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-257"></span><span>  </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a. ExceptT e m a -&gt; m (Either e a)
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-var">runExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-258"></span><span>    </span><span id="local-6989586621680767275"><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621680767275"><span class="hs-identifier hs-var">bs</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) s e.
+MonadIO m =&gt;
+String -&gt; (String -&gt; IO s) -&gt; ExceptT (FileError e) m s
+</span><a href="Cardano.Api.Error.html#fileIOExceptT"><span class="hs-identifier hs-var">fileIOExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767276"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; IO ByteString
+</span><a href="Cardano.Api.Utils.html#readFileBlocking"><span class="hs-identifier hs-var">readFileBlocking</span></a></span><span>
+</span><span id="line-259"></span><span>    </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall e. String -&gt; e -&gt; FileError e
+</span><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767276"><span class="hs-identifier hs-var">path</span></a></span><span> </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">String -&gt; TextEnvelopeError
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeAesonDecodeError"><span class="hs-identifier hs-var">TextEnvelopeAesonDecodeError</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-260"></span><span>      </span><span class="annot"><span class="annottext">forall b c a. (b -&gt; c) -&gt; (a -&gt; b) -&gt; a -&gt; c
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">.</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">hoistEither</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall a. FromJSON a =&gt; ByteString -&gt; Either String a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/aeson-2.1.2.1-df2587b61a06104a86f380b5a459569001433cec573fbbfb097d2a42d0eea05d/share/doc/html/src"><span class="hs-identifier hs-var">Aeson.eitherDecodeStrict'</span></a></span><span> </span><span class="annot"><span class="annottext">ByteString
+</span><a href="#local-6989586621680767275"><span class="hs-identifier hs-var">bs</span></a></span><span>
+</span><span id="line-261"></span><span>
+</span><span id="line-262"></span><span>
+</span><span id="line-263"></span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#readTextEnvelopeOfTypeFromFile"><span class="hs-identifier hs-type">readTextEnvelopeOfTypeFromFile</span></a></span><span>
+</span><span id="line-264"></span><span>  </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeType"><span class="hs-identifier hs-type">TextEnvelopeType</span></a></span><span>
+</span><span id="line-265"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">FilePath</span></a></span><span>
+</span><span id="line-266"></span><span>  </span><span class="hs-glyph">-&gt;</span><span> </span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-type">IO</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-type">Either</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-type">FileError</span></a></span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelopeError"><span class="hs-identifier hs-type">TextEnvelopeError</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><a href="Cardano.Api.SerialiseTextEnvelope.html#TextEnvelope"><span class="hs-identifier hs-type">TextEnvelope</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-267"></span><span id="readTextEnvelopeOfTypeFromFile"><span class="annot"><span class="annottext">readTextEnvelopeOfTypeFromFile :: TextEnvelopeType
+-&gt; String -&gt; IO (Either (FileError TextEnvelopeError) TextEnvelope)
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#readTextEnvelopeOfTypeFromFile"><span class="hs-identifier hs-var hs-var">readTextEnvelopeOfTypeFromFile</span></a></span></span><span> </span><span id="local-6989586621680767274"><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767274"><span class="hs-identifier hs-var">expectedType</span></a></span></span><span> </span><span id="local-6989586621680767273"><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767273"><span class="hs-identifier hs-var">path</span></a></span></span><span> </span><span class="hs-glyph">=</span><span>
+</span><span id="line-268"></span><span>  </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a. ExceptT e m a -&gt; m (Either e a)
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-var">runExceptT</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="hs-keyword">do</span><span>
+</span><span id="line-269"></span><span>    </span><span id="local-6989586621680767272"><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767272"><span class="hs-identifier hs-var">te</span></a></span></span><span> </span><span class="hs-glyph">&lt;-</span><span> </span><span class="annot"><span class="annottext">forall e (m :: * -&gt; *) a. m (Either e a) -&gt; ExceptT e m a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/transformers-0.5.6.2/src"><span class="hs-identifier hs-var">ExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">String -&gt; IO (Either (FileError TextEnvelopeError) TextEnvelope)
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#readTextEnvelopeFromFile"><span class="hs-identifier hs-var">readTextEnvelopeFromFile</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767273"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span>
+</span><span id="line-270"></span><span>    </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x y a.
+Functor m =&gt;
+(x -&gt; y) -&gt; ExceptT x m a -&gt; ExceptT y m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">firstExceptT</span></a></span><span> </span><span class="hs-special">(</span><span class="annot"><span class="annottext">forall e. String -&gt; e -&gt; FileError e
+</span><a href="Cardano.Api.Error.html#FileError"><span class="hs-identifier hs-var">FileError</span></a></span><span> </span><span class="annot"><span class="annottext">String
+</span><a href="#local-6989586621680767273"><span class="hs-identifier hs-var">path</span></a></span><span class="hs-special">)</span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span> </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) x a. Monad m =&gt; Either x a -&gt; ExceptT x m a
+</span><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/transformers-except-0.1.4-0ba8c64ac23d511d3cdd1508787c90f9c7aba5ab8022659e2408f2d2610992e2/share/doc/html/src"><span class="hs-identifier hs-var">hoistEither</span></a></span><span> </span><span class="annot"><span class="annottext">forall a b. (a -&gt; b) -&gt; a -&gt; b
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-operator hs-var">$</span></a></span><span>
+</span><span id="line-271"></span><span>      </span><span class="annot"><span class="annottext">TextEnvelopeType -&gt; TextEnvelope -&gt; Either TextEnvelopeError ()
+</span><a href="Cardano.Api.SerialiseTextEnvelope.html#expectTextEnvelopeOfType"><span class="hs-identifier hs-var">expectTextEnvelopeOfType</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelopeType
+</span><a href="#local-6989586621680767274"><span class="hs-identifier hs-var">expectedType</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767272"><span class="hs-identifier hs-var">te</span></a></span><span>
+</span><span id="line-272"></span><span>    </span><span class="annot"><span class="annottext">forall (m :: * -&gt; *) a. Monad m =&gt; a -&gt; m a
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var">return</span></a></span><span> </span><span class="annot"><span class="annottext">TextEnvelope
+</span><a href="#local-6989586621680767272"><span class="hs-identifier hs-var">te</span></a></span><span>
+</span><span id="line-273"></span><span>
+</span><span id="line-274"></span></pre></body></html>

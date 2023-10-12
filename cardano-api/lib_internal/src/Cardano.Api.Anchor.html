@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><link rel="stylesheet" type="text/css" href="style.css" /><script type="text/javascript" src="highlight.js"></script></head><body><pre><span class="hs-keyword">module</span><span> </span><span class="hs-identifier">Cardano.Api.Anchor</span><span> </span><span class="hs-special">(</span><span>
+</span><span id="line-2"></span><span>    </span><span class="annot"><a href="Cardano.Api.Anchor.html#AnchorUrl"><span class="hs-identifier">AnchorUrl</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span class="hs-special">,</span><span>
+</span><span id="line-3"></span><span>    </span><span class="annot"><a href="Cardano.Api.Anchor.html#AnchorDataHash"><span class="hs-identifier">AnchorDataHash</span></a></span><span class="hs-special">(</span><span class="hs-glyph">..</span><span class="hs-special">)</span><span>
+</span><span id="line-4"></span><span>  </span><span class="hs-special">)</span><span> </span><span class="hs-keyword">where</span><span>
+</span><span id="line-5"></span><span>
+</span><span id="line-6"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.7.0.0-5acf32482793bac8ffc25df9469e3783daecf5eb336d0d9a54e742d597431a2c/share/doc/html/src"><span class="hs-identifier">Cardano.Ledger.BaseTypes</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-7"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.7.0.0-5acf32482793bac8ffc25df9469e3783daecf5eb336d0d9a54e742d597431a2c/share/doc/html/src"><span class="hs-identifier">Cardano.Ledger.Crypto</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">Crypto</span></span><span>
+</span><span id="line-8"></span><span class="hs-keyword">import</span><span> </span><span class="hs-keyword">qualified</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.7.0.0-5acf32482793bac8ffc25df9469e3783daecf5eb336d0d9a54e742d597431a2c/share/doc/html/src"><span class="hs-identifier">Cardano.Ledger.SafeHash</span></a></span><span> </span><span class="hs-keyword">as</span><span> </span><span class="annot"><span class="hs-identifier">L</span></span><span>
+</span><span id="line-9"></span><span>
+</span><span id="line-10"></span><span>
+</span><span id="line-11"></span><span class="hs-comment">-- | The URL to build the anchor to pass to DRep registration certificate</span><span>
+</span><span id="line-12"></span><span class="hs-keyword">newtype</span><span> </span><span id="AnchorUrl"><span class="annot"><a href="Cardano.Api.Anchor.html#AnchorUrl"><span class="hs-identifier hs-var">AnchorUrl</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AnchorUrl"><span class="annot"><a href="Cardano.Api.Anchor.html#AnchorUrl"><span class="hs-identifier hs-var">AnchorUrl</span></a></span></span><span>
+</span><span id="line-13"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="unAnchorUrl"><span class="annot"><span class="annottext">AnchorUrl -&gt; Url
+</span><a href="Cardano.Api.Anchor.html#unAnchorUrl"><span class="hs-identifier hs-var hs-var">unAnchorUrl</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.7.0.0-5acf32482793bac8ffc25df9469e3783daecf5eb336d0d9a54e742d597431a2c/share/doc/html/src"><span class="hs-identifier hs-type">L.Url</span></a></span><span>
+</span><span id="line-14"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680752049"><span id="local-6989586621680752054"><span class="annot"><span class="annottext">AnchorUrl -&gt; AnchorUrl -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: AnchorUrl -&gt; AnchorUrl -&gt; Bool
+$c/= :: AnchorUrl -&gt; AnchorUrl -&gt; Bool
+== :: AnchorUrl -&gt; AnchorUrl -&gt; Bool
+$c== :: AnchorUrl -&gt; AnchorUrl -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680752035"><span id="local-6989586621680752037"><span id="local-6989586621680752043"><span class="annot"><span class="annottext">Int -&gt; AnchorUrl -&gt; ShowS
+[AnchorUrl] -&gt; ShowS
+AnchorUrl -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [AnchorUrl] -&gt; ShowS
+$cshowList :: [AnchorUrl] -&gt; ShowS
+show :: AnchorUrl -&gt; String
+$cshow :: AnchorUrl -&gt; String
+showsPrec :: Int -&gt; AnchorUrl -&gt; ShowS
+$cshowsPrec :: Int -&gt; AnchorUrl -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-15"></span><span>
+</span><span id="line-16"></span><span class="hs-comment">-- | The hash to build the anchor to pass to DRep registration certificate</span><span>
+</span><span id="line-17"></span><span class="hs-keyword">newtype</span><span> </span><span id="AnchorDataHash"><span class="annot"><a href="Cardano.Api.Anchor.html#AnchorDataHash"><span class="hs-identifier hs-var">AnchorDataHash</span></a></span></span><span> </span><span class="hs-glyph">=</span><span> </span><span id="AnchorDataHash"><span class="annot"><a href="Cardano.Api.Anchor.html#AnchorDataHash"><span class="hs-identifier hs-var">AnchorDataHash</span></a></span></span><span>
+</span><span id="line-18"></span><span>  </span><span class="hs-special">{</span><span> </span><span id="unAnchorDataHash"><span class="annot"><span class="annottext">AnchorDataHash -&gt; SafeHash StandardCrypto AnchorData
+</span><a href="Cardano.Api.Anchor.html#unAnchorDataHash"><span class="hs-identifier hs-var hs-var">unAnchorDataHash</span></a></span></span><span> </span><span class="hs-glyph">::</span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.7.0.0-5acf32482793bac8ffc25df9469e3783daecf5eb336d0d9a54e742d597431a2c/share/doc/html/src"><span class="hs-identifier hs-type">L.SafeHash</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.7.0.0-5acf32482793bac8ffc25df9469e3783daecf5eb336d0d9a54e742d597431a2c/share/doc/html/src"><span class="hs-identifier hs-type">Crypto.StandardCrypto</span></a></span><span> </span><span class="annot"><a href="../file:///home/runner/.local/state/cabal/store/ghc-9.2.7/cardano-ledger-core-1.7.0.0-5acf32482793bac8ffc25df9469e3783daecf5eb336d0d9a54e742d597431a2c/share/doc/html/src"><span class="hs-identifier hs-type">L.AnchorData</span></a></span><span>
+</span><span id="line-19"></span><span>  </span><span class="hs-special">}</span><span> </span><span class="hs-keyword">deriving</span><span> </span><span class="hs-special">(</span><span id="local-6989586621680752025"><span id="local-6989586621680752030"><span class="annot"><span class="annottext">AnchorDataHash -&gt; AnchorDataHash -&gt; Bool
+forall a. (a -&gt; a -&gt; Bool) -&gt; (a -&gt; a -&gt; Bool) -&gt; Eq a
+/= :: AnchorDataHash -&gt; AnchorDataHash -&gt; Bool
+$c/= :: AnchorDataHash -&gt; AnchorDataHash -&gt; Bool
+== :: AnchorDataHash -&gt; AnchorDataHash -&gt; Bool
+$c== :: AnchorDataHash -&gt; AnchorDataHash -&gt; Bool
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/ghc-prim-0.8.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var">Eq</span></a></span></span></span><span class="hs-special">,</span><span> </span><span id="local-6989586621680752013"><span id="local-6989586621680752015"><span id="local-6989586621680752020"><span class="annot"><span class="annottext">Int -&gt; AnchorDataHash -&gt; ShowS
+[AnchorDataHash] -&gt; ShowS
+AnchorDataHash -&gt; String
+forall a.
+(Int -&gt; a -&gt; ShowS) -&gt; (a -&gt; String) -&gt; ([a] -&gt; ShowS) -&gt; Show a
+showList :: [AnchorDataHash] -&gt; ShowS
+$cshowList :: [AnchorDataHash] -&gt; ShowS
+show :: AnchorDataHash -&gt; String
+$cshow :: AnchorDataHash -&gt; String
+showsPrec :: Int -&gt; AnchorDataHash -&gt; ShowS
+$cshowsPrec :: Int -&gt; AnchorDataHash -&gt; ShowS
+</span><a href="../file:///usr/local/.ghcup/ghc/9.2.7/share/doc/ghc-9.2.7/html/libraries/base-4.16.4.0/src"><span class="hs-identifier hs-var hs-var hs-var hs-var hs-var hs-var hs-var hs-var">Show</span></a></span></span></span></span><span class="hs-special">)</span><span>
+</span><span id="line-20"></span></pre></body></html>
